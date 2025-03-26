@@ -14,6 +14,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+
   final c = Get.put(GetController());
   File? image;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -37,29 +38,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(
-              defaultPadding, defaultPadding, defaultPadding, 0),
-          height: size.height,
-          width: size.width,
-          decoration: BoxDecoration(
-            color: whiteColor,
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 0.45],
-              colors: c.isDarkTheme.value
-                  ? [blackColor, darkGrey]
-                  : [primaryColor, whiteColor],
-            ),
+      body: Container(
+        padding: const EdgeInsets.fromLTRB(
+            defaultPadding, defaultPadding, defaultPadding, 0),
+        height: size.height,
+        width: size.width,
+        decoration: BoxDecoration(
+          color: whiteColor,
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            stops: const [0.0, 0.45],
+            colors: c.isDarkTheme.value
+                ? [blackColor, darkGrey]
+                : [primaryColor, whiteColor],
           ),
-          child: Column(
-            children: [
-              buildProfileCard(size, context),
-              buildBottomCard(),
-            ],
-          ),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            buildProfileCard(size, context),
+            buildBottomCard(),
+          ],
         ),
       ),
     );

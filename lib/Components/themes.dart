@@ -63,7 +63,7 @@ class Themes {
     primaryColorDark: primaryColor,
     appBarTheme: const AppBarTheme(
       elevation: 1,
-      backgroundColor: blackColor,
+      backgroundColor: blackGrey,
       foregroundColor: whiteColor,
       centerTitle: true,
     ),
@@ -91,11 +91,11 @@ class Themes {
         minimumSize: const Size(220, 35),
       ),
     ),
-    cardColor: blackColor,
+    cardColor: blackGrey,
     brightness: Brightness.dark,
     scaffoldBackgroundColor: blackColor,
     listTileTheme: const ListTileThemeData(
-      tileColor: blackColor,
+      tileColor: blackGrey,
       iconColor: primaryColor,
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
