@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:fit_food/Components/cart_controller.dart';
+import 'package:fit_food/Screens/Cart/cart_screen.dart';
 
 import '../../../Constants/export.dart';
 import '../../../Models/foodsubcat_model.dart';
@@ -26,23 +27,52 @@ class CatDetails extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              InteractiveViewer(
-                minScale: 0.5,
-                maxScale: 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: CachedNetworkImageProvider('$imgPath/$image'),
-                      fit: BoxFit.cover,
+              Stack(
+                children: [
+                  InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 2,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: CachedNetworkImageProvider('$imgPath/$image'),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      height: size.height / 3,
+                      width: size.width,
+                      child: CachedNetworkImage(
+                        imageUrl: '$imgPath/$image',
+                        fit: BoxFit.contain,
+                      ),
                     ),
                   ),
-                  height: size.height / 3,
-                  width: size.width,
-                  child: CachedNetworkImage(
-                    imageUrl: '$imgPath/$image',
-                    fit: BoxFit.contain,
+                  // Add this Positioned widget for the cart icon
+                  Positioned(
+                    top: 16,
+                    right: 16,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          // Navigate to MainScreen and switch to cart tab
+                          Get.until(
+                              (route) => Get.currentRoute == '/MainScreen');
+                          Get.find<GetController>().currIndex.value =
+                              3; // Cart is at index 3
+                        },
+                        icon: const Icon(
+                          Icons.shopping_cart,
+                          color: primaryColor,
+                          size: 28,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
               Padding(
                 padding: const EdgeInsets.all(defaultPadding * 2),
@@ -100,7 +130,8 @@ class CatDetails extends StatelessWidget {
                     ),
                     const SizedBox(height: defaultMargin),
                     SizedBox(
-                      height: size.height / 4,
+                      width: size.width,
+                      height: size.height / 3.5,
                       child: ListView.builder(
                         physics: const BouncingScrollPhysics(),
                         scrollDirection: Axis.horizontal,
@@ -153,75 +184,72 @@ class CatDetails extends StatelessWidget {
             Radius.circular(defaultCardRadius),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.only(right: defaultPadding * 2),
-          child: RoundedContainer(
-            height: size.height / 2,
-            width: size.width / 2 - (defaultPadding * 4),
-            padding: const EdgeInsets.all(defaultPadding),
-            isImage: false,
-            borderColor: Colors.transparent,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: item.mealId! == '1'
-                      ? MealType(
-                          color: Colors.yellow.shade600,
-                          type: 'Egge',
-                        )
-                      : item.mealId! == '2'
-                          ? const MealType(
-                              color: Colors.green,
-                              type: 'Veg',
-                            )
-                          : item.mealId! == '3'
-                              ? const MealType(
-                                  color: Colors.brown,
-                                  type: 'Vegan',
-                                )
-                              : const MealType(
-                                  color: Colors.red,
-                                  type: 'Non',
-                                ),
+        child: RoundedContainer(
+          height: size.height / 2,
+          width: size.width / 2 - (defaultPadding * 4),
+          padding: const EdgeInsets.all(defaultPadding),
+          isImage: false,
+          borderColor: Colors.transparent,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: item.mealId! == '1'
+                    ? MealType(
+                        color: Colors.yellow.shade600,
+                        type: 'Egge',
+                      )
+                    : item.mealId! == '2'
+                        ? const MealType(
+                            color: Colors.green,
+                            type: 'Veg',
+                          )
+                        : item.mealId! == '3'
+                            ? const MealType(
+                                color: Colors.brown,
+                                type: 'Vegan',
+                              )
+                            : const MealType(
+                                color: Colors.red,
+                                type: 'Non',
+                              ),
+              ),
+              CircleAvatar(
+                radius: 50,
+                backgroundColor: greyColor,
+                backgroundImage: CachedNetworkImageProvider(
+                  '$imgPath/$image',
                 ),
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: greyColor,
-                  backgroundImage: CachedNetworkImageProvider(
-                    '$imgPath/$image',
+              ),
+              const Spacer(),
+              Text(
+                item.subcategory!,
+                style: Style.smalltextStyle,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
+              Text('₹${item.price!}',
+                  style: Style.smallLighttextStyle,
+                  textAlign: TextAlign.center),
+              const Spacer(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SvgPicture.asset(
+                    starIcon,
+                    height: 20,
+                    width: 25,
+                    color: primaryColor,
                   ),
-                ),
-                const Spacer(),
-                Text(
-                  item.subcategory!,
-                  style: Style.smalltextStyle,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-                Text('₹${item.price!}',
-                    style: Style.smallLighttextStyle,
-                    textAlign: TextAlign.center),
-                const Spacer(),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      starIcon,
-                      height: 20,
-                      width: 25,
-                      color: primaryColor,
-                    ),
-                    const Spacer(flex: 1),
-                    Text('4.7', style: Style.smallLighttextStyle),
-                    const Spacer(flex: 5),
-                    Text('India', style: Style.smallLighttextStyle),
-                  ],
-                ),
-              ],
-            ),
+                  const Spacer(flex: 1),
+                  Text('4.7', style: Style.smallLighttextStyle),
+                  const Spacer(flex: 5),
+                  Text('India', style: Style.smallLighttextStyle),
+                ],
+              ),
+            ],
           ),
         ),
       ),

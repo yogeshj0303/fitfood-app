@@ -1,17 +1,16 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:fit_food/Models/expert_model.dart';
+import 'package:fit_food/Models/expert_model.dart' as expert;
 import '../../Constants/export.dart';
 
 class ExpertDetails extends StatelessWidget {
-  final AsyncSnapshot<ExpertModel> snapshot;
-  final int index;
-  ExpertDetails({super.key, required this.index, required this.snapshot});
+  final expert.Data expertData;
+  ExpertDetails({super.key, required this.expertData});
   final c = Get.put(GetController());
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    var item = snapshot.data!.data![index];
     return Scaffold(
       backgroundColor: whiteColor,
       body: SafeArea(
@@ -27,7 +26,7 @@ class ExpertDetails extends StatelessWidget {
                 Container(
                   height: size.height * 0.4,
                   width: size.width,
-                  decoration: item.image == null
+                  decoration: expertData.image == null
                       ? BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
                           image: const DecorationImage(
@@ -38,7 +37,7 @@ class ExpertDetails extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                           image: DecorationImage(
                             image: CachedNetworkImageProvider(
-                              '$imgPath/${item.image}',
+                              '$imgPath/${expertData.image}',
                             ),
                             fit: BoxFit.cover,
                           ),
@@ -56,14 +55,14 @@ class ExpertDetails extends StatelessWidget {
                 const SizedBox(height: 8),
                 Center(
                   child: Text(
-                    item.name!.toUpperCase(),
+                    expertData.name!.toUpperCase(),
                     style: Style.largeTextStyle,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Center(
                   child: Text(
-                    item.specialist!,
+                    expertData.specialist!,
                     style: Style.smallLighttextStyle,
                   ),
                 ),
@@ -75,21 +74,21 @@ class ExpertDetails extends StatelessWidget {
                       children: [
                         const Icon(Icons.call, color: primaryColor),
                         const SizedBox(width: 12),
-                        Text(item.phone!),
+                        Text(expertData.phone!),
                       ],
                     ),
                     Row(
                       children: [
                         const Icon(Icons.work_history, color: primaryColor),
                         const SizedBox(width: 12),
-                        Text('${item.experience!}+ years'),
+                        Text('${expertData.experience!}+ years'),
                       ],
                     ),
                     Row(
                       children: [
                         const Icon(Icons.location_city, color: primaryColor),
                         const SizedBox(width: 12),
-                        Text('${item.city}'),
+                        Text('${expertData.city}'),
                       ],
                     ),
                   ],
@@ -106,15 +105,15 @@ class ExpertDetails extends StatelessWidget {
                     children: [
                       const Icon(Icons.email, color: primaryColor),
                       const SizedBox(width: 12),
-                      Text(item.email!),
+                      Text(expertData.email!),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
-                Text('About ${item.name!}', style: Style.mediumTextStyle),
+                Text('About ${expertData.name!}', style: Style.mediumTextStyle),
                 const SizedBox(height: 8),
                 Text(
-                  item.about!,
+                  expertData.about!,
                   style: Style.smallLighttextStyle,
                 ),
                 SizedBox(
@@ -135,7 +134,7 @@ class ExpertDetails extends StatelessWidget {
                     padding: const EdgeInsets.all(defaultPadding * 2),
                     child: ElevatedButton(
                       onPressed: () {
-                        HomeUtils().getExpertConsult(item.id!.toInt());
+                        HomeUtils().getExpertConsult(expertData.id!.toInt());
                       },
                       child: Text('Consult Now'.toUpperCase(),
                           style: Style.mediumWTextStyle),

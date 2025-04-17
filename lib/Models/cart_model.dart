@@ -54,7 +54,7 @@ class Data {
   Data({
     num? productCount,
     num? productMrp,
-    String? productPrice,
+    dynamic productPrice, // Changed from String to dynamic
     List<CartItems>? cartItems,
   }) {
     _productCount = productCount;
@@ -66,7 +66,8 @@ class Data {
   Data.fromJson(dynamic json) {
     _productCount = json['product_count'];
     _productMrp = json['product_mrp'];
-    _productPrice = json['product_price'];
+    // Handle both String and int types
+    _productPrice = json['product_price']?.toString();
     if (json['cart_items'] != null) {
       _cartItems = [];
       json['cart_items'].forEach((v) {
@@ -76,12 +77,12 @@ class Data {
   }
   num? _productCount;
   num? _productMrp;
-  String? _productPrice;
+  dynamic _productPrice; // Changed from String to dynamic
   List<CartItems>? _cartItems;
   Data copyWith({
     num? productCount,
     num? productMrp,
-    String? productPrice,
+    dynamic productPrice, // Changed from String to dynamic
     List<CartItems>? cartItems,
   }) =>
       Data(
@@ -92,7 +93,8 @@ class Data {
       );
   num? get productCount => _productCount;
   num? get productMrp => _productMrp;
-  String? get productPrice => _productPrice;
+  String? get productPrice =>
+      _productPrice?.toString(); // Convert to String when getting
   List<CartItems>? get cartItems => _cartItems;
 
   Map<String, dynamic> toJson() {

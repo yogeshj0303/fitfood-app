@@ -30,7 +30,7 @@ class UserHealthDetail extends StatelessWidget {
                       Text('BMI : ${c.bmi.value.toString().substring(0, 5)}',
                           style: Style.normalLightTextStyle),
                       const SizedBox(height: 8),
-                      Text('Height : ${c.height.value} cm',
+                      Text('Height : ${c.height.value} feet',
                           style: Style.normalLightTextStyle),
                       const SizedBox(height: 8),
                       Text('Weight : ${c.weight.value} kg',

@@ -2,102 +2,144 @@ import 'package:fit_food/Models/trainer_cart_model.dart';
 import 'package:fit_food/Screens/Cart/cart_product_card.dart';
 import 'package:fit_food/Screens/Cart/show_coupon.dart';
 import 'package:fit_food/Screens/Profile/saved_address.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import '../../Constants/export.dart';
 import '../../Components/cart_controller.dart';
 import '../../Models/cart_model.dart';
 
-class Cart extends StatelessWidget {
-  Cart({super.key});
-  final c = Get.put(CartController());
-  final controller = Get.put(GetController());
+class Cart extends StatefulWidget {
+  const Cart({super.key});
+
+  @override
+  State<Cart> createState() => _CartState();
+}
+
+class _CartState extends State<Cart> {
+  final c = Get.find<CartController>();
+  final controller = Get.find<GetController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCartData();
+  }
+
+  Future<void> _loadCartData() async {
+    try {
+      if (controller.role.value == 'Trainer') {
+        await c.showTrainersCart();
+      } else {
+        await c.showCart();
+      }
+    } catch (e) {
+      print('Error loading cart: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        elevation: 1,
-        centerTitle: true,
-        backgroundColor: controller.isDarkTheme.value ? blackColor : whiteColor,
-        foregroundColor: controller.isDarkTheme.value ? whiteColor : blackColor,
-        title: const Text('Your Cart'),
-      ),
-      body: Obx(
-        () => c.isCartLoading.value
-            ? loading
-            : controller.role.value == 'Trainer'
-                ? FutureBuilder<TrainerCartModel>(
-                    future: c.showTrainersCart(),
-                    builder: (context, snapshot) => snapshot.hasData
-                        ? snapshot.data!.data!.cartItems!.isEmpty
-                            ? noProduct(size)
-                            : Stack(
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.all(defaultPadding),
-                                    child: SizedBox(
-                                      height: size.height * 0.58,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: snapshot
-                                            .data!.data!.cartItems!.length,
-                                        itemBuilder: (context, index) =>
-                                            TrainersCartProductCard(
-                                                snapshot: snapshot,
-                                                index: index),
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: buildTrainersPaymentCard(snapshot),
-                                  ),
-                                ],
-                              )
-                        : noProduct(size),
-                  )
-                : FutureBuilder<CartModel>(
-                    future: c.showCart(),
-                    builder: (context, snapshot) => snapshot.hasData
-                        ? snapshot.data!.data!.cartItems!.isEmpty
-                            ? noProduct(size)
-                            : Stack(
-                                children: [
-                                  Padding(
-                                    padding:
-                                        const EdgeInsets.all(defaultPadding),
-                                    child: SizedBox(
-                                      height: size.height * 0.58,
-                                      child: ListView.builder(
-                                        shrinkWrap: true,
-                                        itemCount: snapshot
-                                            .data!.data!.cartItems!.length,
-                                        itemBuilder: (context, index) =>
-                                            CartProductCard(
-                                                snapshot: snapshot,
-                                                index: index),
-                                      ),
-                                    ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.bottomCenter,
-                                    child: buildPaymentCard(snapshot),
-                                  ),
-                                ],
-                              )
-                        : noProduct(size),
-                  ),
-      ),
+      appBar: _buildAppBar(),
+      body: Obx(() {
+        if (c.isCartLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (c.hasError.value) {
+          return Center(child: Text(c.error.value));
+        }
+
+        return controller.role.value == 'Trainer'
+            ? _buildTrainerCart(size)
+            : _buildUserCart(size);
+      }),
     );
   }
 
-  Container buildPaymentCard(AsyncSnapshot<CartModel> snapshot) {
-    c.cartTotal.value = snapshot.data!.data!.productMrp!.toInt();
-    c.amountPayable.value = int.parse(snapshot.data!.data!.productPrice!);
-    c.couponSaving.value = (snapshot.data!.data!.productMrp!.toInt() -
-            int.parse(snapshot.data!.data!.productPrice!))
-        .toString();
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 1,
+      centerTitle: true,
+      backgroundColor: controller.isDarkTheme.value ? blackColor : whiteColor,
+      foregroundColor: controller.isDarkTheme.value ? whiteColor : blackColor,
+      title: const Text('Your Cart'),
+    );
+  }
+
+  Widget _buildTrainerCart(Size size) {
+    return Obx(() {
+      if (c.trainerCartData.value == null ||
+          c.trainerCartData.value?.data?.cartItems?.isEmpty == true) {
+        return noProduct(size);
+      }
+
+      return Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(defaultPadding),
+            child: SizedBox(
+              height: size.height * 0.58,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount:
+                    c.trainerCartData.value?.data?.cartItems?.length ?? 0,
+                itemBuilder: (context, index) => TrainersCartProductCard(
+                  snapshot: c.trainerCartData.value!,
+                  index: index,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: buildTrainersPaymentCard(c.trainerCartData.value!),
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildUserCart(Size size) {
+    return Obx(() {
+      if (c.cartData.value == null ||
+          c.cartData.value?.data?.cartItems?.isEmpty == true) {
+        return noProduct(size);
+      }
+
+      return Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(defaultPadding),
+            child: SizedBox(
+              height: size.height * 0.58,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: c.cartData.value?.data?.cartItems?.length ?? 0,
+                itemBuilder: (context, index) => CartProductCard(
+                  model: c.cartData.value!,
+                  index: index,
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: buildPaymentCard(c.cartData.value!),
+          ),
+        ],
+      );
+    });
+  }
+
+  // Update the payment card methods to use the model directly instead of AsyncSnapshot
+  Container buildPaymentCard(CartModel model) {
+    c.cartTotal.value = model.data!.productMrp!.toInt();
+    c.amountPayable.value = int.parse(model.data!.productPrice!);
+    c.couponSaving.value =
+        (model.data!.productMrp!.toInt() - int.parse(model.data!.productPrice!))
+            .toString();
     return Container(
       color: whiteColor,
       padding: const EdgeInsets.all(defaultPadding),
@@ -154,7 +196,7 @@ class Cart extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               Text(
-                '₹${snapshot.data!.data!.productPrice!}.00',
+                '₹${model.data!.productPrice!}.00',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
@@ -164,22 +206,37 @@ class Cart extends StatelessWidget {
           Align(
             alignment: Alignment.center,
             child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: controller.isDarkTheme.value
+                      ? primaryColor
+                      : primaryColor,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: defaultPadding, horizontal: defaultPadding * 2),
+                ),
                 onPressed: () =>
                     Get.to(() => const SavedAddress(forOrder: true)),
-                child:
-                    Text('Proceed to payment', style: Style.normalWTextStyle)),
+                child: Text(
+                  'Proceed to payment',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: controller.isDarkTheme.value
+                          ? whiteColor
+                          : whiteColor),
+                  textAlign: TextAlign.center,
+                )),
           ),
         ],
       ),
     );
   }
 
-  Container buildTrainersPaymentCard(AsyncSnapshot<TrainerCartModel> snapshot) {
-    c.cartTotal.value = snapshot.data!.data!.productMrp!.toInt();
-    c.amountPayable.value = snapshot.data!.data!.productPrice!.toInt();
-    c.couponSaving.value = (snapshot.data!.data!.productMrp!.toInt() -
-            (snapshot.data!.data!.productPrice!).toInt())
-        .toString();
+  Container buildTrainersPaymentCard(TrainerCartModel model) {
+    c.cartTotal.value = model.data!.productMrp!.toInt();
+    c.amountPayable.value = model.data!.productPrice!.toInt();
+    c.couponSaving.value =
+        (model.data!.productMrp!.toInt() - model.data!.productPrice!.toInt())
+            .toString();
     return Container(
       color: whiteColor,
       padding: const EdgeInsets.all(defaultPadding),
@@ -236,7 +293,7 @@ class Cart extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               Text(
-                '₹${snapshot.data!.data!.productPrice!}.00',
+                '₹${model.data!.productPrice!}.00',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),

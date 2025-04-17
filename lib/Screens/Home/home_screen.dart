@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import 'package:fit_food/Controllers/home_controller.dart';
 import 'package:fit_food/Screens/Home/expert_healthcard_details.dart';
 import 'package:fit_food/Screens/Home/user_details.dart';
 import 'package:fit_food/Screens/Home/user_healthcard_detail.dart';
@@ -9,9 +10,17 @@ import '../../Models/expert_model.dart';
 import 'package:badges/badges.dart' as badges;
 import '../Progress/all_experts.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   final c = Get.put(GetController());
+  final homeController = Get.put(HomeController());
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -19,7 +28,7 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          // physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
             child: Column(
@@ -194,7 +203,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       Text('BMI : ${c.bmi.value.toString().substring(0, 5)}',
                           style: Style.normalWTextStyle),
-                      Text('Height : ${c.height.value} cm',
+                      Text('Height : ${c.height.value} feet',
                           style: Style.normalWTextStyle),
                       Text('Weight : ${c.weight.value} kg',
                           style: Style.normalWTextStyle),
@@ -328,23 +337,23 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget buildFeaturedDiet(Size size) {
-    return FutureBuilder<FoodCategoryModel?>(
-      future: HomeUtils().getFoodCategries(),
-      builder: (context, snapshot) => snapshot.hasData
-          ? buildFeaturedDietCard(snapshot, size)
-          : loadShimmer(size),
-    );
+    return Obx(() => buildFeaturedDietCard(size));
   }
 
-  GridView buildFeaturedDietCard(
-    AsyncSnapshot<FoodCategoryModel?> snapshot,
-    Size size,
-  ) {
-    var item = snapshot.data!.data!;
+  Widget buildFeaturedDietCard(Size size) {
+    if (homeController.isLoading.value) {
+      return loadShimmer(size);
+    }
+
+    final categories = homeController.foodCategories.value?.data;
+    if (categories == null || categories.isEmpty) {
+      return const Center(child: Text('No categories available'));
+    }
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: item.length,
+      itemCount: categories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
         crossAxisSpacing: 10,
@@ -357,12 +366,12 @@ class HomeScreen extends StatelessWidget {
             width: size.width / 5,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [Colors.tealAccent, Colors.teal],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black26,
                   blurRadius: 6,
@@ -372,31 +381,30 @@ class HomeScreen extends StatelessWidget {
               border: Border.all(color: Colors.teal.shade700, width: 1),
             ),
             child: InkWell(
+              onTap: () {
+                Get.to(() => FoodCatLists(
+                      image: '$imgPath/${categories[index].image}',
+                      name: categories[index].name ?? '',
+                      subCatId: categories[index].id?.toInt() ?? 0,
+                    ));
+              },
               child: Padding(
                 padding: const EdgeInsets.all(4.0),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: CachedNetworkImage(
-                    imageUrl: '$imgPath/${snapshot.data!.data![index].image}',
+                    imageUrl: '$imgPath/${categories[index].image}',
                     fit: BoxFit.cover,
                   ),
                 ),
               ),
-              onTap: () {
-                Get.to(
-                  () => FoodCatLists(
-                      image: '$imgPath/${snapshot.data!.data![index].image}',
-                      name: item[index].name!,
-                      subCatId: item[index].id!.toInt()),
-                );
-              },
             ),
           ),
           SizedBox(
             width: 70,
             height: 20,
             child: Text(
-              item[index].name ?? '',
+              categories[index].name ?? '',
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -461,53 +469,56 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget buildBanner(Size size) {
-    return FutureBuilder<BannerModel>(
-      future: HomeUtils().getBanner(),
-      builder: (context, snapshot) => snapshot.hasData
-          ? snapshot.data!.data!.isEmpty
-              ? const Text('No Banners')
-              : CarouselSlider.builder(
-                  itemCount: snapshot.data!.data!.length,
-                  itemBuilder:
-                      (BuildContext context, int index, int realIndex) =>
-                          Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: defaultPadding),
-                    child: Container(
-                      height: size.height / 4,
-                      width: size.width,
-                      decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(defaultCardRadius),
-                          color: Colors.white,
-                          image: DecorationImage(
-                            image: NetworkImage(
-                                '$imgPath/${snapshot.data!.data![index].image}'),
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-                  ),
-                  options: CarouselOptions(
-                    autoPlay: true,
-                    viewportFraction: 1,
-                  ),
-                )
-          : Shimmer.fromColors(
-              highlightColor: highlightColor,
-              baseColor: baseColor,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                child: Container(
-                  height: size.height / 4,
-                  width: size.width,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(defaultCardRadius),
-                    color: Colors.white,
-                  ),
-                ),
+    final homeController = Get.find<HomeController>();
+
+    return Obx(() {
+      if (homeController.isLoading.value) {
+        return Shimmer.fromColors(
+          highlightColor: highlightColor,
+          baseColor: baseColor,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+            child: Container(
+              height: size.height / 4,
+              width: size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(defaultCardRadius),
+                color: Colors.white,
               ),
             ),
-    );
+          ),
+        );
+      }
+
+      final banners = homeController.banners.value?.data;
+      if (banners == null || banners.isEmpty) {
+        return const Center(child: Text('No Banners'));
+      }
+
+      return CarouselSlider.builder(
+        itemCount: banners.length,
+        itemBuilder: (BuildContext context, int index, int realIndex) =>
+            Padding(
+          padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+          child: Container(
+            height: size.height / 4,
+            width: size.width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(defaultCardRadius),
+              color: Colors.white,
+              image: DecorationImage(
+                image: NetworkImage('$imgPath/${banners[index].image}'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        options: CarouselOptions(
+          autoPlay: true,
+          viewportFraction: 1,
+        ),
+      );
+    });
   }
 
   loadShimmer(Size size) {
@@ -544,19 +555,23 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget buildClients(Size size) {
-    return FutureBuilder<ClientsModel>(
-      future: HomeUtils().getClients(),
-      builder: (context, snapshot) => snapshot.hasData
-          ? snapshot.data!.data!.isEmpty
-              ? const Text('No Clients found')
-              : buildClientCard(size, snapshot)
-          : loading,
-    );
+    final homeController = Get.find<HomeController>();
+
+    return Obx(() {
+      if (homeController.isLoading.value) {
+        return loading;
+      }
+
+      final clients = homeController.clients.value?.data;
+      if (clients == null || clients.isEmpty) {
+        return const Center(child: Text('No Clients found'));
+      }
+
+      return buildClientCard(size, clients);
+    });
   }
 
-  Widget buildClientCard(Size size, AsyncSnapshot<ClientsModel> snapshot) {
-    int count = snapshot.data!.data!.length;
-    var item = snapshot.data!.data!;
+  Widget buildClientCard(Size size, List clients) {
     return SizedBox(
       height: size.height * 0.27,
       child: SingleChildScrollView(
@@ -580,12 +595,12 @@ class HomeScreen extends StatelessWidget {
                 shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
-                itemCount: count,
+                itemCount: clients.length,
                 itemBuilder: (context, index) => Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: GestureDetector(
-                    onTap: () => Get.to(
-                        () => UserDetails(snapshot: snapshot, index: index)),
+                    onTap: () =>
+                        Get.to(() => UserDetails(client: clients[index])),
                     child: RoundedContainer(
                       borderColor: Colors.black12,
                       color: whiteColor,
@@ -597,26 +612,24 @@ class HomeScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Spacer(),
-                          item[index].adminId!.image == null
+                          clients[index].adminId!.image == null
                               ? const CircleAvatar(
                                   radius: 50,
                                   backgroundColor: greyColor,
-                                  backgroundImage: AssetImage(
-                                    profileImg,
-                                  ),
+                                  backgroundImage: AssetImage(profileImg),
                                 )
                               : CircleAvatar(
                                   radius: 50,
                                   backgroundColor: greyColor,
                                   backgroundImage: CachedNetworkImageProvider(
-                                    '$imgPath/${item[index].adminId!.image}',
+                                    '$imgPath/${clients[index].adminId!.image}',
                                   ),
                                 ),
                           const Spacer(),
-                          Text(item[index].adminId!.name ?? '',
+                          Text(clients[index].adminId!.name ?? '',
                               style: Style.smalltextStyle,
                               textAlign: TextAlign.center),
-                          Text(item[index].adminId!.email ?? '',
+                          Text(clients[index].adminId!.email ?? '',
                               style: Style.smallLighttextStyle,
                               textAlign: TextAlign.center),
                           const Spacer(),
@@ -626,7 +639,7 @@ class HomeScreen extends StatelessWidget {
                               const Icon(Icons.location_city,
                                   color: primaryColor),
                               const Spacer(flex: 1),
-                              Text(item[index].adminId!.city!,
+                              Text(clients[index].adminId!.city ?? '',
                                   style: Style.smallLighttextStyle),
                               const Spacer(flex: 5),
                               Text('India', style: Style.smallLighttextStyle),
@@ -647,34 +660,42 @@ class HomeScreen extends StatelessWidget {
 }
 
 Widget buildExperts(Size size) {
-  return FutureBuilder<ExpertModel>(
-    future: HomeUtils().getExperts(),
-    builder: (context, snapshot) =>
-        snapshot.hasData ? buildExpertCard(size, snapshot) : loading,
-  );
+  final homeController = Get.find<HomeController>();
+
+  return Obx(() {
+    if (homeController.isLoading.value) {
+      return loading;
+    }
+
+    final experts = homeController.experts.value?.data;
+    if (experts == null || experts.isEmpty) {
+      return const Center(child: Text('No experts available'));
+    }
+
+    return buildExpertCard(size, experts);
+  });
 }
 
-Widget buildExpertCard(Size size, AsyncSnapshot<ExpertModel> snapshot) {
-  final c = Get.put(GetController());
-  int count = snapshot.data!.data!.length;
-  var item = snapshot.data!.data!;
+Widget buildExpertCard(Size size, List experts) {
+  final c = Get.find<GetController>();
+
   return SizedBox(
     height: size.height * 0.27,
     child: Column(
       children: [
-        buildTitle('Our Experts', snapshot),
+        buildTitle('Our Experts'),
         Expanded(
           child: ListView.builder(
             shrinkWrap: true,
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
-            itemCount: count,
+            itemCount: experts.length,
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: GestureDetector(
                 onTap: () {
                   c.isshowMore.value = false;
-                  Get.to(() => ExpertDetails(index: index, snapshot: snapshot));
+                  Get.to(() => ExpertDetails(expertData: experts[index]));
                 },
                 child: RoundedContainer(
                   borderColor: Colors.black12,
@@ -687,26 +708,24 @@ Widget buildExpertCard(Size size, AsyncSnapshot<ExpertModel> snapshot) {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const Spacer(),
-                      item[index].image == null
+                      experts[index].image == null
                           ? const CircleAvatar(
                               radius: 50,
                               backgroundColor: greyColor,
-                              backgroundImage: AssetImage(
-                                profileImg,
-                              ),
+                              backgroundImage: AssetImage(profileImg),
                             )
                           : CircleAvatar(
                               radius: 50,
                               backgroundColor: greyColor,
                               backgroundImage: CachedNetworkImageProvider(
-                                '$imgPath/${item[index].image}',
+                                '$imgPath/${experts[index].image}',
                               ),
                             ),
                       const Spacer(),
-                      Text(item[index].name ?? '',
+                      Text(experts[index].name ?? '',
                           style: Style.smalltextStyle,
                           textAlign: TextAlign.center),
-                      Text(item[index].specialist ?? '',
+                      Text(experts[index].specialist ?? '',
                           style: Style.smallLighttextStyle,
                           textAlign: TextAlign.center),
                       const Spacer(),
@@ -715,7 +734,7 @@ Widget buildExpertCard(Size size, AsyncSnapshot<ExpertModel> snapshot) {
                         children: [
                           const Icon(Icons.location_city, color: primaryColor),
                           const Spacer(flex: 1),
-                          Text(item[index].city!,
+                          Text(experts[index].city ?? '',
                               style: Style.smallLighttextStyle),
                           const Spacer(flex: 5),
                           Text('India', style: Style.smallLighttextStyle),
@@ -733,7 +752,9 @@ Widget buildExpertCard(Size size, AsyncSnapshot<ExpertModel> snapshot) {
   );
 }
 
-Padding buildTitle(String title, AsyncSnapshot<ExpertModel> snapshot) {
+Widget buildTitle(String title) {
+  final homeController = Get.find<HomeController>();
+
   return Padding(
     padding: const EdgeInsets.all(8.0),
     child: Row(
@@ -744,7 +765,12 @@ Padding buildTitle(String title, AsyncSnapshot<ExpertModel> snapshot) {
           style: Style.normalTextStyle,
         ),
         GestureDetector(
-          onTap: () => Get.to(() => AllExperts(snapshot: snapshot)),
+          onTap: () {
+            final experts = homeController.experts.value;
+            if (experts != null) {
+              Get.to(() => AllExperts(experts: experts));
+            }
+          },
           child: Text(
             'View All',
             style: Style.smallLighttextStyle,

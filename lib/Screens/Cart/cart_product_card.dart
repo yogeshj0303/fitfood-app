@@ -6,15 +6,16 @@ import '../../Models/cart_model.dart';
 import '../../Widgets/my_container.dart';
 
 class CartProductCard extends StatelessWidget {
-  final AsyncSnapshot<CartModel> snapshot;
+  final CartModel model;
   final int index;
-  CartProductCard({super.key, required this.snapshot, required this.index});
+
+  CartProductCard({super.key, required this.model, required this.index});
   final c = Get.put(CartController());
+
   @override
   Widget build(BuildContext context) {
-    final item = snapshot.data!.data!.cartItems![index];
-    final image =
-        snapshot.data!.data!.cartItems![index].productsDetails!.image!;
+    final item = model.data!.cartItems![index];
+    final image = model.data!.cartItems![index].productsDetails!.image!;
     final size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.only(bottom: defaultPadding),
@@ -95,12 +96,13 @@ class CartProductCard extends StatelessWidget {
                 Row(
                   children: [
                     RoundedContainer(
-                      onTap: () => showQuantityUpdateDialog(snapshot, index),
+                      onTap: () => showQuantityUpdateDialog(model, index),
                       isImage: false,
                       color: bgColor,
                       padding: const EdgeInsets.symmetric(
-                          vertical: defaultPadding * 0.5,
-                          horizontal: defaultPadding),
+                        vertical: defaultPadding * 0.5,
+                        horizontal: defaultPadding * 0.5,
+                      ),
                       child: Row(
                         children: [
                           Text('Quantity : ${item.quantity}',
@@ -109,7 +111,6 @@ class CartProductCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 16),
                     TextButton.icon(
                       onPressed: () => c.deleteItem(cartId: item.id!.toInt()),
                       icon: const Icon(Icons.delete),
@@ -125,8 +126,8 @@ class CartProductCard extends StatelessWidget {
     );
   }
 
-  showQuantityUpdateDialog(AsyncSnapshot<CartModel> snapshot, int index) {
-    final item = snapshot.data!.data!.cartItems![index];
+  showQuantityUpdateDialog(CartModel model, int index) {
+    final item = model.data!.cartItems![index];
     c.qty.value = 1;
     return Get.defaultDialog(
       title: 'Select Quantity',
@@ -166,16 +167,15 @@ class CartProductCard extends StatelessWidget {
 }
 
 class TrainersCartProductCard extends StatelessWidget {
-  final AsyncSnapshot<TrainerCartModel> snapshot;
+  final TrainerCartModel snapshot;
   final int index;
   TrainersCartProductCard(
       {super.key, required this.snapshot, required this.index});
   final c = Get.put(CartController());
   @override
   Widget build(BuildContext context) {
-    final item = snapshot.data!.data!.cartItems![index];
-    final image =
-        snapshot.data!.data!.cartItems![index].productsDetails!.image!;
+    final item = snapshot.data!.cartItems![index];
+    final image = snapshot.data!.cartItems![index].productsDetails!.image!;
     final size = MediaQuery.of(context).size;
     return Padding(
       padding: const EdgeInsets.only(bottom: defaultPadding),
@@ -287,9 +287,8 @@ class TrainersCartProductCard extends StatelessWidget {
     );
   }
 
-  showQuantityUpdateDialog(
-      AsyncSnapshot<TrainerCartModel> snapshot, int index) {
-    final item = snapshot.data!.data!.cartItems![index];
+  showQuantityUpdateDialog(TrainerCartModel snapshot, int index) {
+    final item = snapshot.data!.cartItems![index];
     c.qty.value = 1;
     return Get.defaultDialog(
       title: 'Select Quantity',

@@ -237,7 +237,7 @@ class EditProfile extends StatelessWidget {
                       : Container(),
                   asheight
                       ? Text(
-                          'cm',
+                          'feet',
                           style: Style.normalLightTextStyle,
                         )
                       : Container(),

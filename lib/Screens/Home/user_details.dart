@@ -2,14 +2,13 @@ import 'package:fit_food/Models/clients_model.dart';
 import '../../Constants/export.dart';
 
 class UserDetails extends StatelessWidget {
-  final AsyncSnapshot<ClientsModel> snapshot;
-  final int index;
-  const UserDetails({super.key, required this.snapshot, required this.index});
+  final ClientsModel client;
+  const UserDetails({super.key, required this.client});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final item = snapshot.data!.data![index].adminId!;
+    final item = client.data![0].adminId!;
     return Scaffold(
       backgroundColor: whiteColor,
       appBar: AppBar(
@@ -33,7 +32,7 @@ class UserDetails extends StatelessWidget {
                     Text('BMI : ${item.bmi.toString().substring(0, 5)}',
                         style: Style.normalLightTextStyle),
                     const SizedBox(height: 8),
-                    Text('Height : ${item.height} cm',
+                    Text('Height : ${item.height} feet',
                         style: Style.normalLightTextStyle),
                     const SizedBox(height: 8),
                     Text('Weight : ${item.weight} kg',
@@ -71,24 +70,23 @@ class UserDetails extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(item.name!, style: Style.mediumTextStyle),
+                Text(item.name ?? '', style: Style.mediumTextStyle),
                 const SizedBox(width: 5),
-                item.subsStatus == 1
-                    ? const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.workspace_premium, color: primaryColor),
-                          SizedBox(width: 2),
-                        ],
-                      )
-                    : Container(),
+                if (item.subsStatus == 1)
+                  const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.workspace_premium, color: primaryColor),
+                      SizedBox(width: 2),
+                    ],
+                  ),
               ],
             ),
             const SizedBox(height: 5),
-            Text(item.phone!, style: Style.normalWhiteTextStyle),
+            Text(item.phone ?? '', style: Style.normalWhiteTextStyle),
             const SizedBox(height: 5),
             Text(
-              item.email!,
+              item.email ?? '',
               style: Style.normalLightTextStyle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

@@ -168,7 +168,7 @@ class _SubscriptionPlanState extends State<SubscriptionPlan>
                             ? c.planId.value = 1
                             : c.planId.value = 2;
                         var options = {
-                          'key': 'rzp_test_xvlZZBGCo0SzL0',
+                          'key': 'rzp_test_Xnvv8oiApC5dMT',
                           'amount': int.parse(item.result!) * 100,
                           'name': 'Fitfood Meals',
                           'description': item.planName,

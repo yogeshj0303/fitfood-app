@@ -1,6 +1,9 @@
 // ignore_for_file: deprecated_member_use
+import 'package:fit_food/Components/cart_controller.dart';
 import 'package:fit_food/Screens/Cart/cart_screen.dart';
 import '../../Constants/export.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -10,112 +13,114 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final List screens = [
+  final controller = Get.find<GetController>();
+  final cartController = Get.find<CartController>();
+
+  final List<Widget> _pages = [
     HomeScreen(),
     OrderScreen(),
     ProgressScreen(),
-    const ProfileScreen(),
+    Cart(),
+    ProfileScreen(),
   ];
-  final int selectedIndex = 0;
-  final controller = Get.put(GetController());
-  final List navBarItem = [];
-  final c = Get.put(GetController());
 
   @override
   void initState() {
     super.initState();
-    c.name.value = GlobalVariable.name;
-    c.planName.value = GlobalVariable.planName;
-    c.isSubscribed.value = GlobalVariable.isSubs;
-    c.weight.value = GlobalVariable.weight;
-    c.height.value = GlobalVariable.height;
-    c.dob.value = GlobalVariable.dob;
-    c.gender.value = GlobalVariable.gender;
-    c.pref.value = GlobalVariable.pref;
-    c.goal.value = GlobalVariable.goal;
-    c.mail.value = GlobalVariable.email;
-    c.phone.value = GlobalVariable.phone;
-    c.city.value = GlobalVariable.city;
-    c.role.value = GlobalVariable.role;
-    c.userDP.value = GlobalVariable.userDP;
+    _initializeUserData();
+    _initializeCart();
+  }
+
+  void _initializeUserData() {
+    controller.name.value = GlobalVariable.name;
+    controller.planName.value = GlobalVariable.planName;
+    controller.isSubscribed.value = GlobalVariable.isSubs;
+    controller.weight.value = GlobalVariable.weight;
+    controller.height.value = GlobalVariable.height;
+    controller.dob.value = GlobalVariable.dob;
+    controller.gender.value = GlobalVariable.gender;
+    controller.pref.value = GlobalVariable.pref;
+    controller.goal.value = GlobalVariable.goal;
+    controller.mail.value = GlobalVariable.email;
+    controller.phone.value = GlobalVariable.phone;
+    controller.city.value = GlobalVariable.city;
+    controller.role.value = GlobalVariable.role;
+    controller.userDP.value = GlobalVariable.userDP;
     ProfileUtils().getProfile();
+  }
+
+  Future<void> _initializeCart() async {
+    try {
+      if (controller.role.value == 'Trainer') {
+        await cartController.showTrainersCart();
+      } else {
+        await cartController.showCart();
+      }
+    } catch (e) {
+      print('Error initializing cart: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    ProfileUtils()
-        .getbmi(double.parse(c.height.value), double.parse(c.weight.value));
+    if (controller.height.value.isNotEmpty &&
+        controller.weight.value.isNotEmpty) {
+      try {
+        ProfileUtils().getbmi(double.parse(controller.height.value),
+            double.parse(controller.weight.value));
+      } catch (e) {
+        print('Error calculating BMI: $e');
+      }
+    }
+
     return Scaffold(
-      body: Obx(
-        () => IndexedStack(
-          index: controller.currIndex.value,
-          children: [
-            HomeScreen(),
-            OrderScreen(),
-            ProgressScreen(),
-            Cart(),
-            const ProfileScreen(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Obx(
-        () => BottomNavigationBar(
-          elevation: 1,
-          currentIndex: controller.currIndex.value,
-          type: BottomNavigationBarType.fixed,
-          selectedLabelStyle: controller.isDarkTheme.value
-              ? Style.smallColortextStyle
-              : Style.smallColortextStyle,
-          onTap: (index) => controller.currIndex.value = index,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-                size: 30,
-                color:
-                    controller.currIndex.value == 0 ? primaryColor : greyColor,
-              ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.menu_book,
-                size: 30,
-                color:
-                    controller.currIndex.value == 1 ? primaryColor : greyColor,
-              ),
-              label: 'Orders',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.update,
-                size: 30,
-                color:
-                    controller.currIndex.value == 2 ? primaryColor : greyColor,
-              ),
-              label: 'Progress',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.local_mall_outlined,
-                size: 30,
-                color:
-                    controller.currIndex.value == 3 ? primaryColor : greyColor,
-              ),
-              label: 'Cart',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.person,
-                size: 30,
-                color:
-                    controller.currIndex.value == 4 ? primaryColor : greyColor,
-              ),
-              label: 'Profile',
-            ),
-          ],
-        ),
+      body: Obx(() => _pages[controller.currIndex.value]),
+      bottomNavigationBar: _buildBottomNavBar(),
+    );
+  }
+
+  Widget _buildBottomNavBar() {
+    return Obx(
+      () => BottomNavigationBar(
+        elevation: 1,
+        currentIndex: controller.currIndex.value,
+        type: BottomNavigationBarType.fixed,
+        selectedLabelStyle: Style.smallColortextStyle,
+        onTap: (index) {
+          controller.currIndex.value = index;
+          // Refresh cart when navigating to cart tab
+          if (index == 3) {
+            _initializeCart();
+          }
+        },
+        items: [
+          _buildNavItem(Icons.home, 'Home', 0),
+          _buildNavItem(Icons.menu_book, 'Orders', 1),
+          _buildNavItem(Icons.update, 'Progress', 2),
+          _buildNavItem(Icons.local_mall_outlined, 'Cart', 3),
+          _buildNavItem(Icons.person, 'Profile', 4),
+        ],
       ),
     );
+  }
+
+  BottomNavigationBarItem _buildNavItem(
+      IconData icon, String label, int index) {
+    return BottomNavigationBarItem(
+      icon: Icon(
+        icon,
+        size: 30,
+        color: controller.currIndex.value == index ? primaryColor : greyColor,
+      ),
+      label: label,
+    );
+  }
+}
+
+class AppBindings extends Bindings {
+  @override
+  void dependencies() {
+    Get.put(GetController(), permanent: true);
+    Get.put(CartController(), permanent: true);
   }
 }

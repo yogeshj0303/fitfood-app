@@ -16,87 +16,124 @@ class CartController extends GetxController {
   RxInt qty = 0.obs;
   RxBool isLoading = false.obs;
   RxBool isCartLoading = false.obs;
+  RxBool hasError = false.obs;
+  RxString error = ''.obs;
+
+  Rx<ShowOrderModel?> showOrderModel = Rx<ShowOrderModel?>(null);
+  final cartData = Rx<CartModel?>(null);
+  final trainerCartData = Rx<TrainerCartModel?>(null);
 
   Future<void> addToCart(int productId) async {
     isLoading.value = true;
     final url =
         '${apiUrl}addtocart?user_id=${GlobalVariable.id}&subcategorie_id=$productId&quantity=1';
-    final response = await http.post(Uri.parse(url));
-    isLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isLoading.value = false;
-        Fluttertoast.showToast(msg: data['message']);
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          isLoading.value = false;
+          Fluttertoast.showToast(msg: data['message']);
+        } else {
+          isLoading.value = false;
+          Fluttertoast.showToast(msg: 'Product is already in cart');
+        }
       } else {
         isLoading.value = false;
-        Fluttertoast.showToast(msg: 'Product is already in cart');
+        Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase}');
       }
-    } else {
+    } catch (e) {
       isLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
   Future<CartModel> showCart() async {
-    final url = '${apiUrl}getCart?user_id=${GlobalVariable.id}';
-    final response = await http.post(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        return CartModel.fromJson(data);
-      } else {
-        Fluttertoast.showToast(msg: 'something went wrong');
+    try {
+      isCartLoading.value = true;
+      final url = '${apiUrl}getCart?user_id=${GlobalVariable.id}';
+      final response = await http.post(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          final result = CartModel.fromJson(data);
+          cartData.value = result;
+
+          // Set the cart total and payable amount
+          if (result.data != null) {
+            cartTotal.value = result.data!.productMrp?.toInt() ?? 0;
+            amountPayable.value =
+                int.tryParse(result.data!.productPrice ?? '0') ?? 0;
+            couponSaving.value =
+                (cartTotal.value - amountPayable.value).toString();
+          }
+
+          return result;
+        }
+        throw Exception(data['message'] ?? 'Something went wrong');
       }
-    } else {
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      throw Exception('${response.statusCode} ${response.reasonPhrase}');
+    } catch (e) {
+      hasError.value = true;
+      error.value = e.toString();
+      rethrow;
+    } finally {
+      isCartLoading.value = false;
     }
-    throw Exception('Unable to load data');
   }
 
   Future<void> updateQuantity({required int qty, required int cartId}) async {
+    isCartLoading.value = true;
     final url =
         '${apiUrl}addCartQuantity?user_id=${GlobalVariable.id}&cart_id=$cartId&quantity=$qty';
-    final response = await http.post(Uri.parse(url));
-    isCartLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isCartLoading.value = false;
-        Get.back();
-        Fluttertoast.showToast(msg: 'Updated');
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          isCartLoading.value = false;
+          Get.back();
+          Fluttertoast.showToast(msg: 'Updated');
+        } else {
+          isCartLoading.value = false;
+          Fluttertoast.showToast(msg: data['message']);
+        }
       } else {
         isCartLoading.value = false;
-        Fluttertoast.showToast(msg: data['message']);
+        Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase}');
       }
-    } else {
+    } catch (e) {
       isCartLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
   Future<void> deleteItem({required int cartId}) async {
-    final url =
-        '${apiUrl}deleteCartItem?user_id=${GlobalVariable.id}&cart_id=$cartId';
-    final response = await http.post(Uri.parse(url));
-    isCartLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isCartLoading.value = false;
-        Get.back();
-        Fluttertoast.showToast(msg: 'deleted');
-      } else {
-        isCartLoading.value = false;
-        Fluttertoast.showToast(msg: data['cart']);
+    try {
+      isCartLoading.value = true;
+      final url =
+          '${apiUrl}deleteCartItem?user_id=${GlobalVariable.id}&cart_id=$cartId';
+      final response = await http.post(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          // Refresh cart data
+          await showCart();
+          Fluttertoast.showToast(msg: 'Item removed from cart');
+        } else {
+          throw Exception(data['message'] ?? 'Failed to remove item');
+        }
       }
-    } else {
+    } catch (e) {
+      hasError.value = true;
+      error.value = e.toString();
+      Fluttertoast.showToast(msg: 'Error removing item');
+    } finally {
       isCartLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
     }
   }
 
@@ -118,23 +155,28 @@ class CartController extends GetxController {
   }
 
   Future<void> applyCoupon({required String code}) async {
-    final url = '${apiUrl}ApplyCoupon?userid=${GlobalVariable.id}&code=$code';
-    final response = await http.post(Uri.parse(url));
     isCartLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isCartLoading.value = false;
-        Get.back();
-        Fluttertoast.showToast(msg: 'Coupon applied');
+    final url = '${apiUrl}ApplyCoupon?userid=${GlobalVariable.id}&code=$code';
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          isCartLoading.value = false;
+          Get.back();
+          Fluttertoast.showToast(msg: 'Coupon applied');
+        } else {
+          isCartLoading.value = false;
+          Fluttertoast.showToast(msg: data['message']);
+        }
       } else {
         isCartLoading.value = false;
-        Fluttertoast.showToast(msg: data['message']);
+        Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase}');
       }
-    } else {
+    } catch (e) {
       isCartLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
@@ -162,20 +204,29 @@ class CartController extends GetxController {
   }
 
   Future<ShowOrderModel> showOrders() async {
-    final url = '${apiUrl}getOrderData?user_id=${GlobalVariable.id}';
-    final response = await http.post(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        return ShowOrderModel.fromJson(data);
-      } else {
-        Fluttertoast.showToast(msg: 'something went wrong');
+    isLoading.value = true;
+    try {
+      final url = '${apiUrl}getOrderData?user_id=${GlobalVariable.id}';
+      final response = await http.post(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          final result = ShowOrderModel.fromJson(data);
+          showOrderModel.value = result;
+          return result;
+        }
+        throw Exception(data['message'] ?? 'something went wrong');
       }
-    } else {
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      throw Exception('${response.statusCode} ${response.reasonPhrase}');
+    } catch (e) {
+      hasError.value = true;
+      error.value = e.toString();
+      Fluttertoast.showToast(msg: e.toString());
+      throw Exception('Unable to load data');
+    } finally {
+      isLoading.value = false;
     }
-    throw Exception('Unable to load data');
   }
 
   Future<void> addToTrainerCart(int productId) async {
@@ -224,41 +275,47 @@ class CartController extends GetxController {
   }
 
   Future<TrainerCartModel> showTrainersCart() async {
-    final url = '${apiUrl}showCart?trainer_id=${GlobalVariable.trainersID}';
-    final response = await http.post(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        return TrainerCartModel.fromJson(data);
-      } else {
-        Fluttertoast.showToast(msg: 'something went wrong');
+    try {
+      final url = '${apiUrl}showCart?trainer_id=${GlobalVariable.trainersID}';
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          final result = TrainerCartModel.fromJson(data);
+          trainerCartData.value = result;
+          return result;
+        }
+        throw Exception('something went wrong');
       }
-    } else {
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      throw Exception('${response.statusCode} ${response.reasonPhrase}');
+    } finally {
+      isLoading.value = false;
     }
-    throw Exception('Unable to load data');
   }
 
   Future<void> deleteTrainersItem({required int cartId}) async {
-    final url =
-        '${apiUrl}deleteCart?trainer_id=${GlobalVariable.trainersID}&cart_id=$cartId';
-    final response = await http.post(Uri.parse(url));
-    isCartLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isCartLoading.value = false;
-        Get.back();
-        Fluttertoast.showToast(msg: 'deleted');
-      } else {
-        isCartLoading.value = false;
-        Fluttertoast.showToast(msg: data['cart']);
+    try {
+      isCartLoading.value = true;
+      final url =
+          '${apiUrl}deleteCart?trainer_id=${GlobalVariable.trainersID}&cart_id=$cartId';
+      final response = await http.post(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          // Refresh cart data
+          await showTrainersCart();
+          Fluttertoast.showToast(msg: 'Item removed from cart');
+        } else {
+          throw Exception(data['message'] ?? 'Failed to remove item');
+        }
       }
-    } else {
+    } catch (e) {
+      hasError.value = true;
+      error.value = e.toString();
+      Fluttertoast.showToast(msg: 'Error removing item');
+    } finally {
       isCartLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
     }
   }
 
@@ -307,20 +364,30 @@ class CartController extends GetxController {
     }
   }
 
-  Future<ShowOrderModel> showTrainersOrders() async {
-    final url = '${apiUrl}getOrderdata?trainer_id=${GlobalVariable.trainersID}';
-    final response = await http.post(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        return ShowOrderModel.fromJson(data);
+  Future<ShowOrderModel?> showTrainersOrders() async {
+    try {
+      isLoading.value = true;
+      final url =
+          '${apiUrl}getOrderdata?trainer_id=${GlobalVariable.trainersID}';
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          showOrderModel.value = ShowOrderModel.fromJson(data);
+        } else {
+          error.value = data['message'] ?? "Something went wrong";
+          hasError.value = true;
+        }
       } else {
-        Fluttertoast.showToast(msg: 'something went wrong');
+        Fluttertoast.showToast(
+          msg: '${response.statusCode} ${response.reasonPhrase}',
+        );
       }
-    } else {
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+    } catch (e) {
+      throw Exception('Unable to load data');
+    } finally {
+      isLoading.value = false;
     }
-    throw Exception('Unable to load data');
+    return null;
   }
 }
