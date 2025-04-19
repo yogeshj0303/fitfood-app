@@ -9,49 +9,94 @@ class TrainerLogin extends StatelessWidget {
   final mailController = TextEditingController();
   final passController = TextEditingController();
   final loginKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Obx(
-        () => c.isTrainRegLoading.value
-            ? loading
-            : Padding(
-                padding: const EdgeInsets.all(defaultPadding * 2),
-                child: Form(
-                  key: loginKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Trainer's Login",
-                        style: Style.largeBoldTextStyle,
-                        textAlign: TextAlign.center,
+      backgroundColor: Get.isDarkMode ? Colors.grey[900] : Colors.white,
+      body: SafeArea(
+        child: Obx(
+          () => c.isTrainRegLoading.value
+              ? loading
+              : Center(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: defaultPadding * 2,
+                        vertical: defaultPadding,
                       ),
-                      const SizedBox(height: defaultPadding * 3),
-                      Image.asset(nutritionist, height: 145),
-                      CustomTextField(
-                        controller: mailController,
-                        hintText: 'Enter your email',
-                        iconData: Icons.mail,
-                        isEmail: true,
+                      child: Form(
+                        key: loginKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: defaultPadding * 2),
+                              child: Image.asset(nutritionist, height: 160),
+                            ),
+                            const SizedBox(height: defaultPadding * 2),
+                            Text(
+                              "Trainer's Login",
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Get.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: defaultPadding * 3),
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Get.isDarkMode
+                                    ? Colors.grey[850]
+                                    : Colors.grey[100],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: CustomTextField(
+                                controller: mailController,
+                                hintText: 'Enter your email',
+                                iconData: Icons.mail,
+                                isEmail: true,
+                              ),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Get.isDarkMode
+                                    ? Colors.grey[850]
+                                    : Colors.grey[100],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: CustomTextField(
+                                controller: passController,
+                                hintText: 'Enter your password',
+                                iconData: Icons.security,
+                                isPassword: true,
+                              ),
+                            ),
+                            const SizedBox(height: defaultPadding),
+                            forgetPass(),
+                            const SizedBox(height: defaultPadding * 2),
+                            SizedBox(
+                              width: double.infinity,
+                              child: loginButton(),
+                            ),
+                            const SizedBox(height: defaultPadding * 2),
+                            donthaveAccount(),
+                          ],
+                        ),
                       ),
-                      CustomTextField(
-                        controller: passController,
-                        hintText: 'Enter your password',
-                        iconData: Icons.security,
-                        isPassword: true,
-                      ),
-                      const SizedBox(height: defaultPadding),
-                      forgetPass(),
-                      const SizedBox(height: defaultPadding * 2),
-                      loginButton(),
-                      const SizedBox(height: defaultPadding * 2),
-                      donthaveAccount(),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }
@@ -66,7 +111,11 @@ class TrainerLogin extends StatelessWidget {
             "Forgot Password ?",
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.left,
-            style: Style.normalColorTextStyle,
+            style: TextStyle(
+              fontSize: 14,
+              color: primaryColor,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -81,13 +130,21 @@ class TrainerLogin extends StatelessWidget {
           AuthUtils().trainerLogin(mailController.text, passController.text);
         }
       },
-      icon: const Icon(
-        Icons.login,
-        color: Colors.white,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: primaryColor,
+        minimumSize: const Size(double.infinity, 45),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
-      label: Text(
+      icon: const Icon(Icons.login, color: Colors.white),
+      label: const Text(
         "Login",
-        style: Style.normalWTextStyle,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }
@@ -98,7 +155,10 @@ class TrainerLogin extends StatelessWidget {
         children: [
           TextSpan(
             text: "Don't have an account yet?  ",
-            style: Style.normalLightTextStyle,
+            style: TextStyle(
+              fontSize: 14,
+              color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+            ),
           ),
           TextSpan(
             text: "Sign Up",

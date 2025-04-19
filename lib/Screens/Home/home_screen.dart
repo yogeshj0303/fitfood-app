@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Get.isDarkMode ? Colors.grey[900] : Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           // physics: const BouncingScrollPhysics(),
@@ -109,18 +109,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return TextFormField(
       onTap: () => Get.to(() => const SearchResult()),
       readOnly: true,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         constraints:
             BoxConstraints.tightFor(width: double.infinity, height: 50),
         contentPadding: EdgeInsets.zero,
         border: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.black38),
-          borderRadius: BorderRadius.all(
-            Radius.circular(12.00),
+          borderSide: BorderSide(
+            color: Get.isDarkMode ? Colors.white38 : Colors.black38,
           ),
+          borderRadius: BorderRadius.all(Radius.circular(12.00)),
         ),
-        prefixIcon: Icon(Icons.search),
-        hintText: "Search ",
+        prefixIcon: Icon(
+          Icons.search,
+          color: Get.isDarkMode ? Colors.white70 : Colors.black87,
+        ),
+        hintText: "Search",
+        hintStyle: TextStyle(
+          color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+        ),
       ),
     );
   }
@@ -424,17 +430,22 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.symmetric(vertical: defaultPadding),
       child: Row(
         children: [
-          const Expanded(
+          Expanded(
             child: Divider(
-              color: Colors.black12,
+              color: Get.isDarkMode ? Colors.white24 : Colors.black12,
               thickness: 1,
             ),
           ),
           const SizedBox(width: 5),
-          Text(text, style: Style.normalTextStyle),
-          const Expanded(
+          Text(text,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Get.isDarkMode ? Colors.white : Colors.black87,
+              )),
+          Expanded(
             child: Divider(
-              color: Colors.black12,
+              color: Get.isDarkMode ? Colors.white24 : Colors.black12,
               thickness: 1,
             ),
           ),
@@ -602,8 +613,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () =>
                         Get.to(() => UserDetails(client: clients[index])),
                     child: RoundedContainer(
-                      borderColor: Colors.black12,
-                      color: whiteColor,
+                      borderColor:
+                          Get.isDarkMode ? Colors.white24 : Colors.black12,
+                      color: Get.isDarkMode ? Colors.grey[850] : whiteColor,
                       height: size.height / 4,
                       width: size.width / 2.5,
                       padding: const EdgeInsets.all(defaultPadding),
@@ -698,46 +710,67 @@ Widget buildExpertCard(Size size, List experts) {
                   Get.to(() => ExpertDetails(expertData: experts[index]));
                 },
                 child: RoundedContainer(
-                  borderColor: Colors.black12,
-                  color: whiteColor,
-                  height: size.height / 4,
+                  borderColor: Get.isDarkMode ? Colors.white24 : Colors.black12,
+                  color: Get.isDarkMode ? Colors.grey[850] : whiteColor,
+                  height: size.height / 4.2,
                   width: size.width / 2.5,
-                  padding: const EdgeInsets.all(defaultPadding),
+                  padding: const EdgeInsets.all(
+                      defaultPadding / 2), // Reduced padding
                   isImage: false,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment:
+                        MainAxisAlignment.spaceEvenly, // Changed from center
+                    mainAxisSize: MainAxisSize.min, // Added to prevent overflow
                     children: [
-                      const Spacer(),
                       experts[index].image == null
                           ? const CircleAvatar(
-                              radius: 50,
+                              radius: 40, // Reduced radius
                               backgroundColor: greyColor,
                               backgroundImage: AssetImage(profileImg),
                             )
                           : CircleAvatar(
-                              radius: 50,
+                              radius: 40, // Reduced radius
                               backgroundColor: greyColor,
                               backgroundImage: CachedNetworkImageProvider(
                                 '$imgPath/${experts[index].image}',
                               ),
                             ),
-                      const Spacer(),
-                      Text(experts[index].name ?? '',
-                          style: Style.smalltextStyle,
-                          textAlign: TextAlign.center),
-                      Text(experts[index].specialist ?? '',
-                          style: Style.smallLighttextStyle,
-                          textAlign: TextAlign.center),
-                      const Spacer(),
+                      Text(
+                        experts[index].name ?? '',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Get.isDarkMode ? Colors.white : Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        experts[index].specialist ?? '',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color:
+                              Get.isDarkMode ? Colors.white70 : Colors.black54,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.location_city, color: primaryColor),
-                          const Spacer(flex: 1),
-                          Text(experts[index].city ?? '',
-                              style: Style.smallLighttextStyle),
-                          const Spacer(flex: 5),
-                          Text('India', style: Style.smallLighttextStyle),
+                          const Icon(Icons.location_city,
+                              color: primaryColor, size: 16),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              '${experts[index].city ?? ''}, India',
+                              style: Style.smallLighttextStyle,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -762,7 +795,11 @@ Widget buildTitle(String title) {
       children: [
         Text(
           title,
-          style: Style.normalTextStyle,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Get.isDarkMode ? Colors.white : Colors.black87,
+          ),
         ),
         GestureDetector(
           onTap: () {
@@ -773,7 +810,10 @@ Widget buildTitle(String title) {
           },
           child: Text(
             'View All',
-            style: Style.smallLighttextStyle,
+            style: TextStyle(
+              fontSize: 12,
+              color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+            ),
           ),
         ),
       ],

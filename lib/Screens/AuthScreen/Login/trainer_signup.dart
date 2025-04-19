@@ -28,7 +28,7 @@ class _TrainerSignupState extends State<TrainerSignup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Get.isDarkMode ? Colors.grey[900] : Colors.white,
       body: Obx(
         () => c.isTrainRegLoading.value
             ? loading
@@ -45,7 +45,12 @@ class _TrainerSignupState extends State<TrainerSignup> {
                           const SizedBox(height: defaultPadding * 3),
                           Text(
                             "Create an account\n as Trainer",
-                            style: Style.largeBoldTextStyle,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  Get.isDarkMode ? Colors.white : Colors.black,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           Image.asset(logoGreen, height: 125),
@@ -98,8 +103,16 @@ class _TrainerSignupState extends State<TrainerSignup> {
                                 onChanged: (value) {
                                   setState(() => selectedGender = value!);
                                 },
+                                activeColor: primaryColor,
                               ),
-                              Text('Male', style: Style.normalLightTextStyle),
+                              Text(
+                                'Male',
+                                style: TextStyle(
+                                  color: Get.isDarkMode
+                                      ? Colors.white70
+                                      : Colors.black87,
+                                ),
+                              ),
                               Radio(
                                 materialTapTargetSize:
                                     MaterialTapTargetSize.shrinkWrap,
@@ -110,7 +123,10 @@ class _TrainerSignupState extends State<TrainerSignup> {
                                   setState(() => selectedGender = value!);
                                 },
                               ),
-                              Text('Female', style: Style.normalLightTextStyle),
+                              Text(
+                                'Female',
+                                style: Style.normalLightTextStyle,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 4.0),
@@ -123,10 +139,21 @@ class _TrainerSignupState extends State<TrainerSignup> {
                                 : null,
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              prefixIcon: const Icon(Icons.wb_incandescent),
-                              hintStyle: Style.smallLighttextStyle,
+                              prefixIcon: Icon(
+                                Icons.wb_incandescent,
+                                color: Get.isDarkMode
+                                    ? Colors.white70
+                                    : Colors.black87,
+                              ),
+                              hintStyle: TextStyle(
+                                color: Get.isDarkMode
+                                    ? Colors.white70
+                                    : Colors.black54,
+                              ),
                               hintText: 'Enter about yourself',
-                              fillColor: Colors.black12,
+                              fillColor: Get.isDarkMode
+                                  ? Colors.white12
+                                  : Colors.black12,
                               filled: true,
                             ),
                           ),
