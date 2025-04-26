@@ -39,32 +39,35 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: _buildAppBar(),
-      body: Obx(() {
-        if (c.isCartLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (c.hasError.value) {
-          return Center(child: Text(c.error.value));
-        }
-
-        return controller.role.value == 'Trainer'
-            ? _buildTrainerCart(size)
-            : _buildUserCart(size);
-      }),
+    return Obx(
+      () => Scaffold(
+        backgroundColor:
+            controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+        appBar: _buildAppBar(),
+        body: c.isCartLoading.value
+            ? const Center(child: CircularProgressIndicator())
+            : c.hasError.value
+                ? Center(child: Text(c.error.value))
+                : controller.role.value == 'Trainer'
+                    ? _buildTrainerCart(size)
+                    : _buildUserCart(size),
+      ),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      elevation: 1,
+      elevation: controller.isDarkTheme.value ? 0 : 1,
       centerTitle: true,
-      backgroundColor: controller.isDarkTheme.value ? blackColor : whiteColor,
-      foregroundColor: controller.isDarkTheme.value ? whiteColor : blackColor,
-      title: const Text('Your Cart'),
+      backgroundColor:
+          controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+      title: Text(
+        'Your Cart',
+        style: TextStyle(
+          color: controller.isDarkTheme.value ? Colors.white : Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
     );
   }
 
@@ -141,7 +144,18 @@ class _CartState extends State<Cart> {
         (model.data!.productMrp!.toInt() - int.parse(model.data!.productPrice!))
             .toString();
     return Container(
-      color: whiteColor,
+      decoration: BoxDecoration(
+        color: controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: controller.isDarkTheme.value
+                ? Colors.black12
+                : Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       padding: const EdgeInsets.all(defaultPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,29 +164,57 @@ class _CartState extends State<Cart> {
           InkWell(
             onTap: () => Get.to(() => ShowCoupons()),
             child: Container(
-              color: Colors.green.shade100,
+              color: controller.isDarkTheme.value
+                  ? Colors.green.shade900
+                  : Colors.green.shade100,
               padding: const EdgeInsets.all(defaultPadding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.loyalty, size: 25, color: primaryColor),
+                  Icon(Icons.loyalty,
+                      size: 25,
+                      color: controller.isDarkTheme.value
+                          ? Colors.white
+                          : primaryColor),
                   const SizedBox(width: 8),
-                  Text('Apply Coupons', style: Style.smallGreentext)
+                  Text(
+                    'Apply Coupons',
+                    style: TextStyle(
+                      color: controller.isDarkTheme.value
+                          ? Colors.white
+                          : primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
                 ],
               ),
             ),
           ),
-          const Text(
+          Text(
             'Order Details',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color:
+                  controller.isDarkTheme.value ? Colors.white : Colors.black87,
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Cart Total', style: Style.normalLightTextStyle),
+              Text(
+                'Cart Total',
+                style: TextStyle(
+                    color: controller.isDarkTheme.value
+                        ? Colors.white70
+                        : Colors.black54),
+              ),
               Text(
                 '₹${c.cartTotal.value}.00',
-                style: Style.normalTextStyle,
+                style: TextStyle(
+                    color: controller.isDarkTheme.value
+                        ? Colors.white
+                        : Colors.black87),
               ),
             ],
           ),
@@ -203,28 +245,22 @@ class _CartState extends State<Cart> {
             ],
           ),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: controller.isDarkTheme.value
-                      ? primaryColor
-                      : primaryColor,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: defaultPadding, horizontal: defaultPadding * 2),
-                ),
-                onPressed: () =>
-                    Get.to(() => const SavedAddress(forOrder: true)),
-                child: Text(
-                  'Proceed to payment',
-                  style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: controller.isDarkTheme.value
-                          ? whiteColor
-                          : whiteColor),
-                  textAlign: TextAlign.center,
-                )),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 40),
+              backgroundColor: primaryColor,
+              padding: const EdgeInsets.symmetric(
+                  vertical: defaultPadding, horizontal: defaultPadding * 2),
+            ),
+            onPressed: () => Get.to(() => const SavedAddress(forOrder: true)),
+            child: Text(
+              'Proceed to payment',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -238,7 +274,18 @@ class _CartState extends State<Cart> {
         (model.data!.productMrp!.toInt() - model.data!.productPrice!.toInt())
             .toString();
     return Container(
-      color: whiteColor,
+      decoration: BoxDecoration(
+        color: controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: controller.isDarkTheme.value
+                ? Colors.black12
+                : Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
       padding: const EdgeInsets.all(defaultPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,29 +294,57 @@ class _CartState extends State<Cart> {
           InkWell(
             onTap: () => Get.to(() => ShowCoupons()),
             child: Container(
-              color: Colors.green.shade100,
+              color: controller.isDarkTheme.value
+                  ? Colors.green.shade900
+                  : Colors.green.shade100,
               padding: const EdgeInsets.all(defaultPadding),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.loyalty, size: 25, color: primaryColor),
+                  Icon(Icons.loyalty,
+                      size: 25,
+                      color: controller.isDarkTheme.value
+                          ? Colors.white
+                          : primaryColor),
                   const SizedBox(width: 8),
-                  Text('Apply Coupons', style: Style.smallGreentext)
+                  Text(
+                    'Apply Coupons',
+                    style: TextStyle(
+                      color: controller.isDarkTheme.value
+                          ? Colors.white
+                          : primaryColor,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )
                 ],
               ),
             ),
           ),
-          const Text(
+          Text(
             'Order Details',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color:
+                  controller.isDarkTheme.value ? Colors.white : Colors.black87,
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Cart Total', style: Style.normalLightTextStyle),
+              Text(
+                'Cart Total',
+                style: TextStyle(
+                    color: controller.isDarkTheme.value
+                        ? Colors.white70
+                        : Colors.black54),
+              ),
               Text(
                 '₹${c.cartTotal.value}.00',
-                style: Style.normalTextStyle,
+                style: TextStyle(
+                    color: controller.isDarkTheme.value
+                        ? Colors.white
+                        : Colors.black87),
               ),
             ],
           ),
@@ -300,13 +375,21 @@ class _CartState extends State<Cart> {
             ],
           ),
           const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton(
-                onPressed: () =>
-                    Get.to(() => const SavedAddress(forOrder: true)),
-                child:
-                    Text('Proceed to payment', style: Style.normalWTextStyle)),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              padding: const EdgeInsets.symmetric(
+                  vertical: defaultPadding, horizontal: defaultPadding * 2),
+            ),
+            onPressed: () => Get.to(() => const SavedAddress(forOrder: true)),
+            child: Text(
+              'Proceed to payment',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -322,7 +405,13 @@ class _CartState extends State<Cart> {
           child: Lottie.asset(cartLottie, height: 275, fit: BoxFit.cover),
         ),
         const SizedBox(height: 55),
-        Text('No Products in your Cart', style: Style.largeLighttextStyle)
+        Text(
+          'No Products in your Cart',
+          style: TextStyle(
+            fontSize: 18,
+            color: controller.isDarkTheme.value ? Colors.white70 : Colors.grey,
+          ),
+        )
       ],
     );
   }

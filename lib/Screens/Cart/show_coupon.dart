@@ -10,13 +10,19 @@ class ShowCoupons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: c.isDarkTheme.value ? blackColor : Colors.grey[100],
+      backgroundColor:
+          c.isDarkTheme.value ? Colors.grey[900] : Colors.grey[100],
       appBar: AppBar(
-        elevation: 0,
+        elevation: c.isDarkTheme.value ? 0 : 1,
         centerTitle: true,
-        title: const Text('Available Coupons'),
-        backgroundColor: c.isDarkTheme.value ? blackColor : whiteColor,
-        foregroundColor: c.isDarkTheme.value ? whiteColor : blackColor,
+        title: Text(
+          'Available Coupons',
+          style: TextStyle(
+            color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
       ),
       body: Obx(() {
         if (c1.isCartLoading.value) {
@@ -34,19 +40,22 @@ class ShowCoupons extends StatelessWidget {
               return Center(
                 child: Text(
                   'Error loading coupons: ${snapshot.error}',
-                  style: Style.normalLightTextStyle,
+                  style: TextStyle(
+                    color:
+                        c.isDarkTheme.value ? Colors.white70 : Colors.black54,
+                  ),
                   textAlign: TextAlign.center,
                 ),
               );
             }
 
             if (!snapshot.hasData || snapshot.data?.data?.isEmpty == true) {
-              return const Center(
+              return Center(
                 child: Text(
                   'No coupons available at the moment',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.grey,
+                    color: c.isDarkTheme.value ? Colors.white70 : Colors.grey,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -76,14 +85,15 @@ class ShowCoupons extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: defaultPadding),
       child: Container(
         decoration: BoxDecoration(
-          color: whiteColor,
+          color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 2),
+              color: c.isDarkTheme.value
+                  ? Colors.black12
+                  : Colors.grey.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -95,29 +105,32 @@ class ShowCoupons extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(defaultPadding),
               decoration: BoxDecoration(
-                color: primaryColor.withOpacity(0.1),
+                color: c.isDarkTheme.value
+                    ? Colors.green.shade900
+                    : primaryColor.withOpacity(0.1),
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(12),
                   topRight: Radius.circular(12),
                 ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.local_offer_rounded, color: primaryColor),
-                    const SizedBox(width: 8),
-                    Text(
-                      item.code!,
-                      style: Style.mediumTextStyle.copyWith(
-                        color: primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.local_offer_rounded,
+                    color: c.isDarkTheme.value ? Colors.white : primaryColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    item.code!,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: c.isDarkTheme.value ? Colors.white : primaryColor,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             Padding(
@@ -131,12 +144,20 @@ class ShowCoupons extends StatelessWidget {
                 children: [
                   Text(
                     'Save ${item.discount}% on your order',
-                    style: Style.mediumTextStyle,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color:
+                          c.isDarkTheme.value ? Colors.white : Colors.black87,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Min. order amount: ₹${item.amount}',
-                    style: Style.smallLighttextStyle,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color:
+                          c.isDarkTheme.value ? Colors.white70 : Colors.black54,
+                    ),
                   ),
                 ],
               ),
@@ -147,42 +168,51 @@ class ShowCoupons extends StatelessWidget {
                 left: defaultPadding,
                 right: defaultPadding,
               ),
-              child: Obx(() => ElevatedButton(
-                    onPressed: c1.isCartLoading.value
-                        ? null
-                        : () async {
-                            try {
-                              if (c.role.value == 'Trainer') {
-                                await c1.applyTrainerCoupon(code: item.code!);
-                              } else {
-                                await c1.applyCoupon(code: item.code!);
+              child: Center(
+                child: Obx(() => ElevatedButton(
+                      onPressed: c1.isCartLoading.value
+                          ? null
+                          : () async {
+                              try {
+                                if (c.role.value == 'Trainer') {
+                                  await c1.applyTrainerCoupon(code: item.code!);
+                                } else {
+                                  await c1.applyCoupon(code: item.code!);
+                                }
+                                Get.back(); // Return to cart screen after successful apply
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())),
+                                );
                               }
-                              Get.back(); // Return to cart screen after successful apply
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: whiteColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        minimumSize: const Size(double.infinity, 45),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    child: c1.isCartLoading.value
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(whiteColor),
+                      child: c1.isCartLoading.value
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'APPLY',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                              ),
                             ),
-                          )
-                        : const Text('APPLY'),
-                  )),
+                    )),
+              ),
             ),
           ],
         ),

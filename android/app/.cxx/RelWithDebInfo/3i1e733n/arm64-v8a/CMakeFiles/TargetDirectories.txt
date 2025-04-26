@@ -1,0 +1,2 @@
+C:/Users/yashs/Documents/fitfood-app/android/app/.cxx/RelWithDebInfo/3i1e733n/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/yashs/Documents/fitfood-app/android/app/.cxx/RelWithDebInfo/3i1e733n/arm64-v8a/CMakeFiles/rebuild_cache.dir

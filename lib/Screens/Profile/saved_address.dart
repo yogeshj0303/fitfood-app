@@ -60,23 +60,37 @@ class _SavedAddressState extends State<SavedAddress> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: bgColor,
+      backgroundColor: c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
       appBar: AppBar(
         centerTitle: true,
-        title: widget.forOrder
-            ? const Text('Select Address')
-            : const Text('Saved Addresses'),
+        elevation: c.isDarkTheme.value ? 0 : 1,
+        backgroundColor: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+        title: Text(
+          widget.forOrder ? 'Select Address' : 'Saved Addresses',
+          style: TextStyle(
+            color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Obx(
         () => c1.addressList.isEmpty
             ? Center(
-                child: widget.forOrder
-                    ? Text('Please add address to proceed further',
-                        style: Style.normalLightTextStyle)
-                    : Text('No Address saved yet',
-                        style: Style.normalLightTextStyle))
+                child: Text(
+                  widget.forOrder
+                      ? 'Please add address to proceed further'
+                      : 'No Address saved yet',
+                  style: TextStyle(
+                    color:
+                        c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                ),
+              )
             : ListView.builder(
                 shrinkWrap: true,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(defaultPadding),
                 itemCount: c1.addressList.length,
                 itemBuilder: (context, index) => widget.forOrder
                     ? buildAddressCard1(index)
@@ -94,29 +108,75 @@ class _SavedAddressState extends State<SavedAddress> {
   Widget buildAddressCard(int index) {
     final item = c1.addressList[index];
     return Padding(
-      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0),
+      padding: const EdgeInsets.only(bottom: defaultPadding),
       child: Obx(
-        () => RoundedContainer(
-          isImage: false,
-          color: whiteColor,
-          padding: const EdgeInsets.all(defaultPadding * 2),
+        () => Container(
+          decoration: BoxDecoration(
+            color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: c.isDarkTheme.value
+                    ? Colors.black12
+                    : Colors.grey.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(defaultPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              c.role.value == 'Trainer'
-                  ? Text(c.tName.value, style: Style.normalboldTextStyle)
-                  : Text(c.name.value, style: Style.normalboldTextStyle),
+              Text(
+                c.role.value == 'Trainer' ? c.tName.value : c.name.value,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                ),
+              ),
               const SizedBox(height: 5),
-              Text('${item.address}, ${item.city}',
-                  style: Style.normalLightTextStyle),
-              Text(item.locality, style: Style.normalLightTextStyle),
-              Text('${item.state}, India', style: Style.normalLightTextStyle),
-              Text(item.pincode, style: Style.normalLightTextStyle),
+              Text(
+                '${item.address}, ${item.city}',
+                style: TextStyle(
+                  color:
+                      c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                ),
+              ),
+              Text(
+                item.locality,
+                style: TextStyle(
+                  color:
+                      c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                ),
+              ),
+              Text(
+                '${item.state}, India',
+                style: TextStyle(
+                  color:
+                      c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                ),
+              ),
+              Text(
+                item.pincode,
+                style: TextStyle(
+                  color:
+                      c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                ),
+              ),
               const SizedBox(height: 5),
-              c.role.value == 'Trainer'
-                  ? Text(c.tPhone.value, style: Style.normalLightTextStyle)
-                  : Text(c.phone.value, style: Style.normalLightTextStyle),
-              const Divider(color: Colors.black12),
+              Text(
+                c.role.value == 'Trainer' ? c.tPhone.value : c.phone.value,
+                style: TextStyle(
+                  color:
+                      c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                ),
+              ),
+              Divider(
+                color:
+                    c.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
+              ),
               TextButton(
                 onPressed: () => c.role.value == 'Trainer'
                     ? c1.deleteTrainerAddress(addressId: item.id)
@@ -189,6 +249,11 @@ class _SavedAddressState extends State<SavedAddress> {
     address.clear();
     return Get.defaultDialog(
       title: 'Add Address',
+      titleStyle: TextStyle(
+        color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+        fontWeight: FontWeight.bold,
+      ),
+      backgroundColor: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
       content: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Form(
@@ -245,7 +310,11 @@ class _SavedAddressState extends State<SavedAddress> {
                     },
                     label: 'Add',
                     color: primaryColor,
-                    style: Style.normalWTextStyle)
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16,
+                    ))
               ],
             ),
           ),

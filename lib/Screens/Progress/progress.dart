@@ -4,6 +4,7 @@ import '../../Constants/export.dart';
 class ProgressScreen extends StatelessWidget {
   ProgressScreen({super.key});
   final c = Get.put(GetController());
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -11,38 +12,101 @@ class ProgressScreen extends StatelessWidget {
       () => c.isAuthLoading.value
           ? loading
           : Scaffold(
+              backgroundColor:
+                  c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
               appBar: AppBar(
-                title: const Text('Progress'),
+                title: Text(
+                  'Progress',
+                  style: TextStyle(
+                    color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 centerTitle: true,
-                backgroundColor: c.isDarkTheme.value ? blackColor : whiteColor,
-                foregroundColor: c.isDarkTheme.value ? whiteColor : blackColor,
-                elevation: 1,
+                backgroundColor:
+                    c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                elevation: c.isDarkTheme.value ? 0 : 1,
                 actions: [
-                  Obx(
-                    () => Switch(
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Switch(
                       value: c.isDarkTheme.value,
-                      onChanged: (theme) {
-                        Get.changeTheme(Get.isDarkMode
-                            ? ThemeData.light()
-                            : ThemeData.dark());
-                        c.isDarkTheme.value = theme;
-                      },
+                      onChanged: (value) => c.toggleTheme(),
+                      activeColor: primaryColor,
+                      activeTrackColor: primaryColor.withOpacity(0.5),
+                      inactiveThumbColor: Colors.grey,
+                      inactiveTrackColor: Colors.grey.withOpacity(0.5),
                     ),
                   ),
                 ],
               ),
               body: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                child: Padding(
+                child: Container(
                   padding: const EdgeInsets.all(defaultPadding * 2),
+                  decoration: BoxDecoration(
+                    color:
+                        c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      BmiGraph(),
-                      const SizedBox(height: 10),
-                      const BMICard(),
-                      const SizedBox(height: 10),
-                      buildExperts(size),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: c.isDarkTheme.value
+                              ? Colors.grey[850]
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: c.isDarkTheme.value
+                                  ? Colors.black12
+                                  : Colors.grey.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: BmiGraph(),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: c.isDarkTheme.value
+                              ? Colors.grey[850]
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: c.isDarkTheme.value
+                                  ? Colors.black12
+                                  : Colors.grey.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: const BMICard(),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: c.isDarkTheme.value
+                              ? Colors.grey[850]
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: c.isDarkTheme.value
+                                  ? Colors.black12
+                                  : Colors.grey.withOpacity(0.2),
+                              blurRadius: 10,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: buildExperts(size),
+                      ),
                     ],
                   ),
                 ),

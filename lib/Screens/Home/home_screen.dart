@@ -25,28 +25,100 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Get.isDarkMode ? Colors.grey[900] : Colors.white,
+      backgroundColor: c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          // physics: const BouncingScrollPhysics(),
-          child: Padding(
+          child: Container(
             padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
+            decoration: BoxDecoration(
+              color: c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+            ),
             child: Column(
               children: [
                 buildAddrProfileBar(size),
                 buildSearchBar(),
                 const SizedBox(height: defaultPadding),
-                c.role.value == 'Trainer'
-                    ? buildTrainerCard(size)
-                    : buildHealthCard(size),
-                buildDivider("Featured Diet"),
-                buildFeaturedDiet(size),
+                // Wrap each major section in a container with consistent styling
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: c.isDarkTheme.value
+                            ? Colors.black12
+                            : Colors.grey.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: c.role.value == 'Trainer'
+                      ? buildTrainerCard(size)
+                      : buildHealthCard(size),
+                ),
                 const SizedBox(height: defaultPadding),
-                buildBanner(size),
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: c.isDarkTheme.value
+                            ? Colors.black12
+                            : Colors.grey.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      buildDivider("Featured Diet"),
+                      buildFeaturedDiet(size),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: defaultPadding),
-                c.role.value == 'User'
-                    ? buildExperts(size)
-                    : buildClients(size),
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: c.isDarkTheme.value
+                            ? Colors.black12
+                            : Colors.grey.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: buildBanner(size),
+                ),
+                const SizedBox(height: defaultPadding),
+                Container(
+                  decoration: BoxDecoration(
+                    color:
+                        c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: c.isDarkTheme.value
+                            ? Colors.black12
+                            : Colors.grey.withOpacity(0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: c.role.value == 'User'
+                      ? buildExperts(size)
+                      : buildClients(size),
+                ),
                 const SizedBox(height: defaultPadding),
               ],
             ),
@@ -105,27 +177,43 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Update buildSearchBar
   Widget buildSearchBar() {
-    return TextFormField(
-      onTap: () => Get.to(() => const SearchResult()),
-      readOnly: true,
-      decoration: InputDecoration(
-        constraints:
-            BoxConstraints.tightFor(width: double.infinity, height: 50),
-        contentPadding: EdgeInsets.zero,
-        border: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Get.isDarkMode ? Colors.white38 : Colors.black38,
+    return Container(
+      decoration: BoxDecoration(
+        color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: c.isDarkTheme.value
+                ? Colors.black12
+                : Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
-          borderRadius: BorderRadius.all(Radius.circular(12.00)),
-        ),
-        prefixIcon: Icon(
-          Icons.search,
-          color: Get.isDarkMode ? Colors.white70 : Colors.black87,
-        ),
-        hintText: "Search",
-        hintStyle: TextStyle(
-          color: Get.isDarkMode ? Colors.white70 : Colors.black54,
+        ],
+      ),
+      child: TextFormField(
+        onTap: () => Get.to(() => const SearchResult()),
+        readOnly: true,
+        decoration: InputDecoration(
+          constraints:
+              const BoxConstraints.tightFor(width: double.infinity, height: 50),
+          contentPadding: EdgeInsets.zero,
+          border: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: c.isDarkTheme.value ? Colors.white38 : Colors.black38,
+            ),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
+          ),
+          prefixIcon: Icon(
+            Icons.search,
+            color: c.isDarkTheme.value ? Colors.white70 : Colors.black87,
+          ),
+          hintText: "Search",
+          hintStyle: TextStyle(
+            color: c.isDarkTheme.value ? Colors.white70 : Colors.black54,
+          ),
         ),
       ),
     );
@@ -509,18 +597,15 @@ class _HomeScreenState extends State<HomeScreen> {
       return CarouselSlider.builder(
         itemCount: banners.length,
         itemBuilder: (BuildContext context, int index, int realIndex) =>
-            Padding(
-          padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-          child: Container(
-            height: size.height / 4,
-            width: size.width,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(defaultCardRadius),
-              color: Colors.white,
-              image: DecorationImage(
-                image: NetworkImage('$imgPath/${banners[index].image}'),
-                fit: BoxFit.cover,
-              ),
+            Container(
+          height: size.height / 4,
+          width: size.width,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(defaultCardRadius),
+            color: Colors.white,
+            image: DecorationImage(
+              image: NetworkImage('$imgPath/${banners[index].image}'),
+              fit: BoxFit.cover,
             ),
           ),
         ),
@@ -607,58 +692,55 @@ class _HomeScreenState extends State<HomeScreen> {
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
                 itemCount: clients.length,
-                itemBuilder: (context, index) => Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: GestureDetector(
-                    onTap: () =>
-                        Get.to(() => UserDetails(client: clients[index])),
-                    child: RoundedContainer(
-                      borderColor:
-                          Get.isDarkMode ? Colors.white24 : Colors.black12,
-                      color: Get.isDarkMode ? Colors.grey[850] : whiteColor,
-                      height: size.height / 4,
-                      width: size.width / 2.5,
-                      padding: const EdgeInsets.all(defaultPadding),
-                      isImage: false,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Spacer(),
-                          clients[index].adminId!.image == null
-                              ? const CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: greyColor,
-                                  backgroundImage: AssetImage(profileImg),
-                                )
-                              : CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: greyColor,
-                                  backgroundImage: CachedNetworkImageProvider(
-                                    '$imgPath/${clients[index].adminId!.image}',
-                                  ),
+                itemBuilder: (context, index) => GestureDetector(
+                  onTap: () =>
+                      Get.to(() => UserDetails(client: clients[index])),
+                  child: RoundedContainer(
+                    borderColor:
+                        Get.isDarkMode ? Colors.white24 : Colors.black12,
+                    color: Get.isDarkMode ? Colors.grey[850] : whiteColor,
+                    height: size.height / 4,
+                    width: size.width / 2.5,
+                    padding: const EdgeInsets.all(defaultPadding),
+                    isImage: false,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Spacer(),
+                        clients[index].adminId!.image == null
+                            ? const CircleAvatar(
+                                radius: 50,
+                                backgroundColor: greyColor,
+                                backgroundImage: AssetImage(profileImg),
+                              )
+                            : CircleAvatar(
+                                radius: 50,
+                                backgroundColor: greyColor,
+                                backgroundImage: CachedNetworkImageProvider(
+                                  '$imgPath/${clients[index].adminId!.image}',
                                 ),
-                          const Spacer(),
-                          Text(clients[index].adminId!.name ?? '',
-                              style: Style.smalltextStyle,
-                              textAlign: TextAlign.center),
-                          Text(clients[index].adminId!.email ?? '',
-                              style: Style.smallLighttextStyle,
-                              textAlign: TextAlign.center),
-                          const Spacer(),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.location_city,
-                                  color: primaryColor),
-                              const Spacer(flex: 1),
-                              Text(clients[index].adminId!.city ?? '',
-                                  style: Style.smallLighttextStyle),
-                              const Spacer(flex: 5),
-                              Text('India', style: Style.smallLighttextStyle),
-                            ],
-                          ),
-                        ],
-                      ),
+                              ),
+                        const Spacer(),
+                        Text(clients[index].adminId!.name ?? '',
+                            style: Style.smalltextStyle,
+                            textAlign: TextAlign.center),
+                        Text(clients[index].adminId!.email ?? '',
+                            style: Style.smallLighttextStyle,
+                            textAlign: TextAlign.center),
+                        const Spacer(),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.location_city,
+                                color: primaryColor),
+                            const Spacer(flex: 1),
+                            Text(clients[index].adminId!.city ?? '',
+                                style: Style.smallLighttextStyle),
+                            const Spacer(flex: 5),
+                            Text('India', style: Style.smallLighttextStyle),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),

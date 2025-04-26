@@ -65,9 +65,32 @@ class GetController extends GetxController {
   var isEditWeight = false.obs;
   //Theme
   var isDarkTheme = false.obs;
-  //plan
+//plan
   var isSubscribed = false.obs;
   var subsId = 0.obs;
   var planId = 0.obs;
   var planName = 'No Plan'.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadThemeState();
+  }
+
+  Future<void> loadThemeState() async {
+    final prefs = await SharedPreferences.getInstance();
+    isDarkTheme.value = prefs.getBool('isDarkMode') ?? false;
+    updateTheme();
+  }
+
+  void updateTheme() {
+    Get.changeTheme(isDarkTheme.value ? ThemeData.dark() : ThemeData.light());
+  }
+
+  Future<void> toggleTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    isDarkTheme.value = !isDarkTheme.value;
+    await prefs.setBool('isDarkMode', isDarkTheme.value);
+    updateTheme();
+  }
 }

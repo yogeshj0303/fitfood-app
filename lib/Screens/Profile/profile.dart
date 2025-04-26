@@ -14,7 +14,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-
   final c = Get.put(GetController());
   File? image;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
@@ -37,29 +36,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.fromLTRB(
-            defaultPadding, defaultPadding, defaultPadding, 0),
-        height: size.height,
-        width: size.width,
-        decoration: BoxDecoration(
-          color: whiteColor,
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: const [0.0, 0.45],
-            colors: c.isDarkTheme.value
-                ? [blackColor, darkGrey]
-                : [primaryColor, whiteColor],
+    return Obx(
+      () => Scaffold(
+        backgroundColor: c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+        body: Container(
+          padding: const EdgeInsets.fromLTRB(
+              defaultPadding, defaultPadding, defaultPadding, 0),
+          height: size.height,
+          width: size.width,
+          decoration: BoxDecoration(
+            color: c.isDarkTheme.value ? Colors.grey[900] : whiteColor,
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0.0, 0.45],
+              colors: c.isDarkTheme.value
+                  ? [Colors.grey[850]!, Colors.grey[900]!]
+                  : [primaryColor, whiteColor],
+            ),
           ),
-        ),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            buildProfileCard(size, context),
-            buildBottomCard(),
-          ],
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              buildProfileCard(size, context),
+              buildBottomCard(),
+            ],
+          ),
         ),
       ),
     );
@@ -300,14 +302,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(defaultCardRadius),
               topRight: Radius.circular(defaultCardRadius)),
-          color: c.isDarkTheme.value ? blackColor : whiteColor,
+          color: c.isDarkTheme.value ? Colors.grey[850] : whiteColor,
+          boxShadow: [
+            BoxShadow(
+              color: c.isDarkTheme.value
+                  ? Colors.black12
+                  : Colors.grey.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
           children: [
             ListTile(
               leading: const Icon(Icons.badge, size: 30, color: primaryColor),
-              title: const Text('Edit Profile'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+              title: Text(
+                'Edit Profile',
+                style: TextStyle(
+                  color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                ),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 15,
+                color: c.isDarkTheme.value ? Colors.white70 : Colors.black54,
+              ),
               onTap: () => c.role.value == 'User'
                   ? Get.to(() => EditProfile(),
                       transition: Transition.rightToLeft)
@@ -423,4 +443,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
 //       ),
 //     );
 //   }
+// }
 }

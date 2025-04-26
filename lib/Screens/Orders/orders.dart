@@ -48,19 +48,31 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          _controller.isDarkTheme.value ? blackColor : Colors.grey.shade100,
+          _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
       appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: Container(
+        decoration: BoxDecoration(
+          color:
+              _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+        ),
+        child: _buildBody(),
+      ),
     );
   }
 
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      title: const Text('My Orders'),
+      title: Text(
+        'My Orders',
+        style: TextStyle(
+          color: _controller.isDarkTheme.value ? Colors.white : Colors.black87,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       centerTitle: true,
-      elevation: 0,
-      backgroundColor: _controller.isDarkTheme.value ? blackColor : whiteColor,
-      foregroundColor: _controller.isDarkTheme.value ? whiteColor : blackColor,
+      elevation: _controller.isDarkTheme.value ? 0 : 1,
+      backgroundColor:
+          _controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
     );
   }
 
@@ -88,16 +100,36 @@ class _OrderScreenState extends State<OrderScreen> {
   Widget _buildOrdersList(ShowOrderModel snapshot) {
     return RefreshIndicator(
       onRefresh: () async {
-        await _loadOrders(); // Actually reload the data
+        await _loadOrders();
       },
-      child: ListView.builder(
-        padding: const EdgeInsets.all(defaultPadding * 1.5),
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: snapshot.orders!.length,
-        itemBuilder: (context, index) => OrderCard(
-          snapshot: snapshot,
-          index: index,
-          controller: _controller,
+      child: Container(
+        padding: const EdgeInsets.all(defaultPadding),
+        child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: snapshot.orders!.length,
+          itemBuilder: (context, index) => Container(
+            margin: const EdgeInsets.only(bottom: defaultPadding),
+            decoration: BoxDecoration(
+              color: _controller.isDarkTheme.value
+                  ? Colors.grey[850]
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: _controller.isDarkTheme.value
+                      ? Colors.black12
+                      : Colors.grey.withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: OrderCard(
+              snapshot: snapshot,
+              index: index,
+              controller: _controller,
+            ),
+          ),
         ),
       ),
     );
@@ -111,20 +143,29 @@ class _OrderScreenState extends State<OrderScreen> {
           Icon(
             Icons.receipt_long_outlined,
             size: 64,
-            color: Colors.grey[400],
+            color: _controller.isDarkTheme.value
+                ? Colors.grey[400]
+                : Colors.grey[500],
           ),
           const SizedBox(height: 16),
           Text(
             'No Orders Yet',
-            style: Style.largeLighttextStyle.copyWith(
-              color: Colors.grey[600],
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: _controller.isDarkTheme.value
+                  ? Colors.white
+                  : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
           Text(
             'Your order history will appear here',
-            style: Style.smalltextStyle.copyWith(
-              color: Colors.grey[500],
+            style: TextStyle(
+              fontSize: 14,
+              color: _controller.isDarkTheme.value
+                  ? Colors.white70
+                  : Colors.grey[500],
             ),
           ),
         ],
@@ -178,37 +219,36 @@ class OrderCard extends StatelessWidget {
     final order = snapshot.orders?[index];
     if (order == null) return const SizedBox.shrink();
 
-    return Card(
-      color: controller.isDarkTheme.value ? blackColor : whiteColor,
-      elevation: 1,
-      margin: const EdgeInsets.only(bottom: defaultPadding),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(defaultPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildOrderHeader(order),
-            const Divider(height: 24),
-            _buildDeliveryAddress(order.address),
-            const SizedBox(height: 6),
-            _buildOrderItems(order),
-            const Divider(height: 14),
-            _buildOrderStatus(order.activeStatus),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(defaultPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildOrderHeader(order),
+          Divider(
+            height: 24,
+            color: controller.isDarkTheme.value
+                ? Colors.white24
+                : Colors.grey.shade200,
+          ),
+          _buildDeliveryAddress(order.address),
+          const SizedBox(height: 6),
+          _buildOrderItems(order),
+          Divider(
+            height: 14,
+            color: controller.isDarkTheme.value
+                ? Colors.white24
+                : Colors.grey.shade200,
+          ),
+          _buildOrderStatus(order.activeStatus),
+        ],
       ),
     );
   }
 
   Widget _buildOrderHeader(Orders order) {
-    final dateStr = order.orderdetails?[0].details?.createdAt?.split('T').first;
-    final formattedDate = dateStr != null
-        ? DateFormat('MMM dd, yyyy').format(DateTime.parse(dateStr))
-        : 'Date not available';
+    String? formattedDate =
+        _formatDate(order.orderdetails?[0].details?.createdAt);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -218,22 +258,27 @@ class OrderCard extends StatelessWidget {
           children: [
             Text(
               'Order #${order.orderid}',
-              style:
-                  Style.mediumTextStyle.copyWith(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: controller.isDarkTheme.value
+                    ? Colors.white
+                    : Colors.black87,
+              ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              formattedDate,
-              style: Style.smalltextStyle.copyWith(color: Colors.grey[600]),
-            ),
+            if (formattedDate != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                formattedDate,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: controller.isDarkTheme.value
+                      ? Colors.white70
+                      : Colors.grey[600],
+                ),
+              ),
+            ],
           ],
-        ),
-        IconButton(
-          icon: const Icon(Icons.receipt_outlined),
-          onPressed: () {
-            // Implement invoice download
-          },
-          tooltip: 'Download Invoice',
         ),
       ],
     );
@@ -333,5 +378,20 @@ ${address.pinCode ?? ''}''',
         ),
       ],
     );
+  }
+
+  // Add this helper method to safely format the date
+  String? _formatDate(String? dateString) {
+    if (dateString == null || dateString.isEmpty) {
+      return null;
+    }
+
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('MMM dd, yyyy').format(date);
+    } catch (e) {
+      print('Error parsing date: $dateString');
+      return null;
+    }
   }
 }
