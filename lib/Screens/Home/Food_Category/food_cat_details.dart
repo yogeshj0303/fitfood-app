@@ -37,204 +37,237 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
     final item = widget.snapshot.data!.data![widget.ind];
     final image = item.image!;
 
-    return Scaffold(
-      // Remove the AppBar
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Obx(
-            () => c.isLoading.value
-                ? loading
-                : Column(
-                    children: [
-                      Stack(
+    return Obx(() => Scaffold(
+          backgroundColor:
+              c1.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Obx(
+                () => c.isLoading.value
+                    ? loading
+                    : Column(
                         children: [
-                          InteractiveViewer(
-                            minScale: 0.5,
-                            maxScale: 2,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: CachedNetworkImageProvider(
-                                      '$imgPath/$image'),
-                                  fit: BoxFit.cover,
+                          Stack(
+                            children: [
+                              InteractiveViewer(
+                                minScale: 0.5,
+                                maxScale: 2,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: CachedNetworkImageProvider(
+                                          '$imgPath/$image'),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  height: size.height / 3,
+                                  width: size.width,
+                                  child: CachedNetworkImage(
+                                    imageUrl: '$imgPath/$image',
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
                               ),
-                              height: size.height / 3,
-                              width: size.width,
-                              child: CachedNetworkImage(
-                                imageUrl: '$imgPath/$image',
-                                fit: BoxFit.contain,
+                              Positioned(
+                                top: 16,
+                                right: 16,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.9),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      // Navigate to MainScreen and switch to cart tab
+                                      Get.until((route) =>
+                                          Get.currentRoute == '/MainScreen');
+                                      Get.find<GetController>()
+                                          .currIndex
+                                          .value = 3; // Cart is at index 3
+                                    },
+                                    icon: const Icon(
+                                      Icons.shopping_cart,
+                                      color: primaryColor,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                          Positioned(
-                            top: 16,
-                            right: 16,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.9),
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                onPressed: () {
-                                  // Navigate to MainScreen and switch to cart tab
-                                  Get.until((route) =>
-                                      Get.currentRoute == '/MainScreen');
-                                  Get.find<GetController>().currIndex.value =
-                                      3; // Cart is at index 3
-                                },
-                                icon: const Icon(
-                                  Icons.shopping_cart,
-                                  color: primaryColor,
-                                  size: 28,
+                          Padding(
+                            padding: const EdgeInsets.all(defaultPadding * 2),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.subcategory!,
+                                          style: Style.largeTextStyle.copyWith(
+                                            color: c1.isDarkTheme.value
+                                                ? Colors.white
+                                                : Colors.black87,
+                                          ),
+                                        ),
+                                        Text(
+                                          '₹${item.price!}',
+                                          style: Style.mediumTextStyle.copyWith(
+                                            color: c1.isDarkTheme.value
+                                                ? Colors.white70
+                                                : Colors.black54,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    item.mealId! == '1'
+                                        ? MealType(
+                                            color: Colors.yellow.shade600,
+                                            type: 'Egge',
+                                          )
+                                        : item.mealId! == '2'
+                                            ? const MealType(
+                                                color: Colors.green,
+                                                type: 'Veg',
+                                              )
+                                            : item.mealId! == '3'
+                                                ? const MealType(
+                                                    color: Colors.brown,
+                                                    type: 'Vegan',
+                                                  )
+                                                : const MealType(
+                                                    color: Colors.red,
+                                                    type: 'Non',
+                                                  )
+                                  ],
                                 ),
-                              ),
+                                const SizedBox(height: defaultMargin),
+                                Text(
+                                  'Description : ',
+                                  style: Style.normalTextStyle.copyWith(
+                                    color: c1.isDarkTheme.value
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: defaultMargin),
+                                Text(
+                                  item.description!,
+                                  style: Style.normalLightTextStyle.copyWith(
+                                    color: c1.isDarkTheme.value
+                                        ? Colors.white70
+                                        : Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(height: defaultMargin * 2),
+                                Text(
+                                  'You may also like:',
+                                  style: Style.normalTextStyle.copyWith(
+                                    color: c1.isDarkTheme.value
+                                        ? Colors.white
+                                        : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: defaultMargin),
+                                SizedBox(
+                                  height: 280,
+                                  child: FutureBuilder<FoodSubCategoryModel>(
+                                    future: similarItems,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      }
+
+                                      if (snapshot.hasError) {
+                                        return Center(
+                                          child: Text(
+                                            'Error loading similar items',
+                                            style: Style.normalLightTextStyle,
+                                          ),
+                                        );
+                                      }
+
+                                      if (!snapshot.hasData ||
+                                          snapshot.data!.data!.isEmpty) {
+                                        return Center(
+                                          child: Text(
+                                            'No similar items found',
+                                            style: Style.normalLightTextStyle,
+                                          ),
+                                        );
+                                      }
+
+                                      return ListView.builder(
+                                        clipBehavior: Clip.none,
+                                        shrinkWrap: true,
+                                        scrollDirection: Axis.horizontal,
+                                        physics: const BouncingScrollPhysics(),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: defaultPadding,
+                                        ),
+                                        itemCount: snapshot.data!.data!.length,
+                                        itemBuilder: (context, index) {
+                                          final similarItem =
+                                              snapshot.data!.data![index];
+                                          // Skip current item
+                                          if (similarItem.id == item.id) {
+                                            return const SizedBox.shrink();
+                                          }
+                                          return buildFoodCard(
+                                              size, similarItem);
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(
+                                    height:
+                                        defaultMargin * 2), // Bottom padding
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(defaultPadding * 2),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      item.subcategory!,
-                                      style: Style.largeTextStyle,
-                                    ),
-                                    Text(
-                                      '₹${item.price!}',
-                                      style: Style.mediumTextStyle,
-                                    ),
-                                  ],
-                                ),
-                                item.mealId! == '1'
-                                    ? MealType(
-                                        color: Colors.yellow.shade600,
-                                        type: 'Egge',
-                                      )
-                                    : item.mealId! == '2'
-                                        ? const MealType(
-                                            color: Colors.green,
-                                            type: 'Veg',
-                                          )
-                                        : item.mealId! == '3'
-                                            ? const MealType(
-                                                color: Colors.brown,
-                                                type: 'Vegan',
-                                              )
-                                            : const MealType(
-                                                color: Colors.red,
-                                                type: 'Non',
-                                              )
-                              ],
-                            ),
-                            const SizedBox(height: defaultMargin),
-                            Text(
-                              'Description : ',
-                              style: Style.normalTextStyle,
-                            ),
-                            const SizedBox(height: defaultMargin),
-                            Text(item.description!,
-                                style: Style.normalLightTextStyle),
-                            const SizedBox(height: defaultMargin),
-                            const SizedBox(height: defaultMargin * 2),
-                            Text(
-                              'You may also like:',
-                              style: Style.normalTextStyle,
-                            ),
-                            const SizedBox(height: defaultMargin),
-                            SizedBox(
-                              height: 280,
-                              child: FutureBuilder<FoodSubCategoryModel>(
-                                future: similarItems,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  }
-
-                                  if (snapshot.hasError) {
-                                    return Center(
-                                      child: Text(
-                                        'Error loading similar items',
-                                        style: Style.normalLightTextStyle,
-                                      ),
-                                    );
-                                  }
-
-                                  if (!snapshot.hasData ||
-                                      snapshot.data!.data!.isEmpty) {
-                                    return Center(
-                                      child: Text(
-                                        'No similar items found',
-                                        style: Style.normalLightTextStyle,
-                                      ),
-                                    );
-                                  }
-
-                                  return ListView.builder(
-                                    clipBehavior: Clip.none,
-                                    shrinkWrap: true,
-                                    scrollDirection: Axis.horizontal,
-                                    physics: const BouncingScrollPhysics(),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: defaultPadding,
-                                    ),
-                                    itemCount: snapshot.data!.data!.length,
-                                    itemBuilder: (context, index) {
-                                      final similarItem =
-                                          snapshot.data!.data![index];
-                                      // Skip current item
-                                      if (similarItem.id == item.id) {
-                                        return const SizedBox.shrink();
-                                      }
-                                      return buildFoodCard(size, similarItem);
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(
-                                height: defaultMargin * 2), // Bottom padding
-                          ],
-                        ),
-                      ),
-                    ],
+              ),
+            ),
+          ),
+          bottomSheet: Container(
+            padding: const EdgeInsets.all(8.0),
+            color: c1.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+            child: InkWell(
+              onTap: () {
+                c1.role.value == 'Trainer'
+                    ? c.addToTrainerCart(
+                        widget.snapshot.data!.data![widget.ind].id!.toInt())
+                    : c.addToCart(
+                        widget.snapshot.data!.data![widget.ind].id!.toInt());
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.local_mall, color: primaryColor),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Add to cart',
+                    style: Style.mediumTextStyle.copyWith(
+                      color:
+                          c1.isDarkTheme.value ? Colors.white : Colors.black87,
+                    ),
                   ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
-      bottomSheet: InkWell(
-        onTap: () {
-          c1.role.value == 'Trainer'
-              ? c.addToTrainerCart(
-                  widget.snapshot.data!.data![widget.ind].id!.toInt())
-              : c.addToCart(
-                  widget.snapshot.data!.data![widget.ind].id!.toInt());
-        },
-        child: Container(
-          padding: const EdgeInsets.all(8.0),
-          color: Colors.white,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.local_mall, color: primaryColor),
-              const SizedBox(width: 12),
-              Text('Add to cart', style: Style.mediumTextStyle),
-            ],
-          ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget buildFoodCard(Size size, Data item) {
@@ -273,7 +306,7 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
           width: size.width * 0.6,
           child: Card(
             clipBehavior: Clip.antiAlias,
-            color: whiteColor,
+            color: c1.isDarkTheme.value ? Colors.grey[850] : whiteColor,
             elevation: 4,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
@@ -312,7 +345,11 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
                     children: [
                       Text(
                         item.subcategory!,
-                        style: Style.normalTextStyle,
+                        style: Style.normalTextStyle.copyWith(
+                          color: c1.isDarkTheme.value
+                              ? Colors.white
+                              : Colors.black87,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -333,10 +370,24 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
                                 color: primaryColor,
                               ),
                               const SizedBox(width: 4),
-                              Text('4.7', style: Style.smallLighttextStyle),
+                              Text(
+                                '4.7',
+                                style: Style.smallLighttextStyle.copyWith(
+                                  color: c1.isDarkTheme.value
+                                      ? Colors.white70
+                                      : Colors.black54,
+                                ),
+                              ),
                             ],
                           ),
-                          Text('India', style: Style.smallLighttextStyle),
+                          Text(
+                            'India',
+                            style: Style.smallLighttextStyle.copyWith(
+                              color: c1.isDarkTheme.value
+                                  ? Colors.white70
+                                  : Colors.black54,
+                            ),
+                          ),
                         ],
                       ),
                     ],

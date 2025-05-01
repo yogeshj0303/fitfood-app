@@ -39,6 +39,8 @@ class FoodCatLists extends StatefulWidget {
 }
 
 class _FoodCatListsState extends State<FoodCatLists> {
+  // Add GetController instance
+  final c = Get.find<GetController>();
   final ScrollController _scrollController = ScrollController();
   final RxString _sortBy = 'Default'.obs;
   final RxBool _isVeg = false.obs;
@@ -65,169 +67,197 @@ class _FoodCatListsState extends State<FoodCatLists> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Scrollable Content
-            Expanded(
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                      defaultPadding, 0, defaultPadding, defaultPadding),
-                  child: FutureBuilder<FoodSubCategoryModel>(
-                    future: _foodData,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return _buildErrorWidget();
-                      }
+    return Obx(() => Scaffold(
+          backgroundColor:
+              c.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+          body: SafeArea(
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                          defaultPadding, 0, defaultPadding, defaultPadding),
+                      child: FutureBuilder<FoodSubCategoryModel>(
+                        future: _foodData,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return _buildErrorWidget();
+                          }
 
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return loading;
-                      }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return loading;
+                          }
 
-                      if (!snapshot.hasData || snapshot.data!.data!.isEmpty) {
-                        return _buildNoDataWidget(widget.name);
-                      }
+                          if (!snapshot.hasData ||
+                              snapshot.data!.data!.isEmpty) {
+                            return _buildNoDataWidget(widget.name);
+                          }
 
-                      // Get sorted data
-                      final sortedData = _getSortedData(snapshot.data!.data!);
+                          // Get sorted data
+                          final sortedData =
+                              _getSortedData(snapshot.data!.data!);
 
-                      return Scrollbar(
-                        controller: _scrollController,
-                        thumbVisibility: true,
-                        child: Column(
-                          children: [
-                            BannerWidget(
-                              name: widget.name,
-                              iImage: widget.image,
-                              opacity: 0.4,
-                            ),
-                            const SizedBox(height: defaultPadding),
-                            // Fixed Sort and Filter Bar
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                color: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: defaultPadding,
-                                  vertical: 8,
+                          return Scrollbar(
+                            controller: _scrollController,
+                            thumbVisibility: true,
+                            child: Column(
+                              children: [
+                                // Update BannerWidget if needed
+                                BannerWidget(
+                                  name: widget.name,
+                                  iImage: widget.image,
+                                  opacity: c.isDarkTheme.value ? 0.6 : 0.4,
                                 ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () => _showSortBottomSheet(),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(Icons.sort, size: 20),
-                                              const SizedBox(width: 8),
-                                              Flexible(
-                                                child: Obx(() => Text(
-                                                      'Sort: ${_sortBy.value}',
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
-                                                      style:
-                                                          Style.smalltextStyle,
-                                                    )),
+                                const SizedBox(height: defaultPadding),
+                                // Update Sort and Filter Bar
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Container(
+                                    color: c.isDarkTheme.value
+                                        ? Colors.grey[850]
+                                        : Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: defaultPadding,
+                                      vertical: 8,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: InkWell(
+                                            onTap: () => _showSortBottomSheet(),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 8,
                                               ),
-                                            ],
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: c.isDarkTheme.value
+                                                        ? Colors.grey[700]!
+                                                        : Colors.grey[300]!),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Icon(Icons.sort,
+                                                      size: 20,
+                                                      color: c.isDarkTheme.value
+                                                          ? Colors.white
+                                                          : Colors.black87),
+                                                  const SizedBox(width: 8),
+                                                  Flexible(
+                                                    child: Obx(() => Text(
+                                                          'Sort: ${_sortBy.value}',
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 1,
+                                                          style: Style
+                                                              .smalltextStyle
+                                                              .copyWith(
+                                                                  color: c.isDarkTheme
+                                                                          .value
+                                                                      ? Colors
+                                                                          .white
+                                                                      : Colors
+                                                                          .black87),
+                                                        )),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: InkWell(
-                                        onTap: () => _showFilterBottomSheet(),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                                color: Colors.grey.shade300),
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              const Icon(Icons.filter_list,
-                                                  size: 20),
-                                              const SizedBox(width: 8),
-                                              Text(
-                                                'Filter',
-                                                style: Style.smalltextStyle,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: InkWell(
+                                            onTap: () =>
+                                                _showFilterBottomSheet(),
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 8,
                                               ),
-                                            ],
+                                              decoration: BoxDecoration(
+                                                border: Border.all(
+                                                    color: c.isDarkTheme.value
+                                                        ? Colors.grey[700]!
+                                                        : Colors.grey[300]!),
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  const Icon(Icons.filter_list,
+                                                      size: 20),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    'Filter',
+                                                    style: Style.smalltextStyle,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(height: defaultPadding),
+                                ListView.builder(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemCount: sortedData.length,
+                                  itemBuilder: (context, index) {
+                                    final modifiedSnapshot = AsyncSnapshot<
+                                            FoodSubCategoryModel>.withData(
+                                        ConnectionState.done,
+                                        FoodSubCategoryModel(
+                                            data: [sortedData[index]]));
+                                    return buildFoodsCard(
+                                        size, modifiedSnapshot, 0);
+                                  },
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: defaultPadding),
-                            ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: sortedData.length,
-                              itemBuilder: (context, index) {
-                                final modifiedSnapshot = AsyncSnapshot<
-                                        FoodSubCategoryModel>.withData(
-                                    ConnectionState.done,
-                                    FoodSubCategoryModel(
-                                        data: [sortedData[index]]));
-                                return buildFoodsCard(
-                                    size, modifiedSnapshot, 0);
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 
   void _showSortBottomSheet() {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Sort By', style: Style.mediumTextStyle),
+            Text('Sort By',
+                style: Style.mediumTextStyle.copyWith(
+                    color:
+                        c.isDarkTheme.value ? Colors.white : Colors.black87)),
             const SizedBox(height: 16),
             ListTile(
               onTap: () {
@@ -235,7 +265,11 @@ class _FoodCatListsState extends State<FoodCatLists> {
                 Get.back();
                 setState(() {});
               },
-              title: Text('Price: Low to High', style: Style.smalltextStyle),
+              title: Text('Price: Low to High',
+                  style: Style.smalltextStyle.copyWith(
+                      color: c.isDarkTheme.value
+                          ? Colors.white70
+                          : Colors.black87)),
             ),
             ListTile(
               onTap: () {
@@ -243,7 +277,11 @@ class _FoodCatListsState extends State<FoodCatLists> {
                 Get.back();
                 setState(() {}); // Add this to trigger rebuild
               },
-              title: Text('Price: High to Low', style: Style.smalltextStyle),
+              title: Text('Price: High to Low',
+                  style: Style.smalltextStyle.copyWith(
+                      color: c.isDarkTheme.value
+                          ? Colors.white70
+                          : Colors.black87)),
             ),
           ],
         ),
@@ -255,39 +293,73 @@ class _FoodCatListsState extends State<FoodCatLists> {
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.all(16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        decoration: BoxDecoration(
+          color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Filter', style: Style.mediumTextStyle),
+            Text('Filter',
+                style: Style.mediumTextStyle.copyWith(
+                    color:
+                        c.isDarkTheme.value ? Colors.white : Colors.black87)),
             const SizedBox(height: 16),
-            Text('Meal Type', style: Style.smalltextStyle),
+            Text('Meal Type',
+                style: Style.smalltextStyle.copyWith(
+                    color:
+                        c.isDarkTheme.value ? Colors.white70 : Colors.black87)),
             Obx(() => Wrap(
                   spacing: 8,
                   children: [
                     FilterChip(
-                      label: Text('Veg'),
+                      label: Text('Veg',
+                          style: TextStyle(
+                              color: c.isDarkTheme.value
+                                  ? Colors.white
+                                  : Colors.black87)),
                       selected: _isVeg.value,
                       onSelected: (val) => _isVeg.value = val,
+                      backgroundColor: c.isDarkTheme.value
+                          ? Colors.grey[800]
+                          : Colors.grey[200],
                     ),
                     FilterChip(
-                      label: Text('Non-Veg'),
+                      label: Text('Non-Veg',
+                          style: TextStyle(
+                              color: c.isDarkTheme.value
+                                  ? Colors.white
+                                  : Colors.black87)),
                       selected: _isNonVeg.value,
                       onSelected: (val) => _isNonVeg.value = val,
+                      backgroundColor: c.isDarkTheme.value
+                          ? Colors.grey[800]
+                          : Colors.grey[200],
                     ),
                     FilterChip(
-                      label: Text('Egg'),
+                      label: Text('Egg',
+                          style: TextStyle(
+                              color: c.isDarkTheme.value
+                                  ? Colors.white
+                                  : Colors.black87)),
                       selected: _isEgg.value,
                       onSelected: (val) => _isEgg.value = val,
+                      backgroundColor: c.isDarkTheme.value
+                          ? Colors.grey[800]
+                          : Colors.grey[200],
                     ),
                     FilterChip(
-                      label: Text('Vegan'),
+                      label: Text('Vegan',
+                          style: TextStyle(
+                              color: c.isDarkTheme.value
+                                  ? Colors.white
+                                  : Colors.black87)),
                       selected: _isVegan.value,
                       onSelected: (val) => _isVegan.value = val,
+                      backgroundColor: c.isDarkTheme.value
+                          ? Colors.grey[800]
+                          : Colors.grey[200],
                     ),
                   ],
                 )),
@@ -487,21 +559,18 @@ Widget _buildErrorWidget() {
 
 Widget buildFoodsCard(
     Size size, AsyncSnapshot<FoodSubCategoryModel> snapshot, int index) {
+  final c = Get.find<GetController>();
   var item = snapshot.data!.data![index];
+
   return Padding(
     padding: const EdgeInsets.only(bottom: defaultPadding),
     child: GestureDetector(
-      onTap: () => Get.to(
-        () => FoodCatDetails(
-          snapshot: snapshot,
-          ind: index,
-        ),
-      ),
+      onTap: () => Get.to(() => FoodCatDetails(snapshot: snapshot, ind: index)),
       child: RoundedContainer(
         padding: const EdgeInsets.symmetric(vertical: defaultPadding),
         height: size.height / 5,
         width: size.width,
-        borderColor: Colors.black12,
+        borderColor: c.isDarkTheme.value ? Colors.grey[700]! : Colors.black12,
         isImage: false,
         child: Padding(
           padding: const EdgeInsets.all(defaultPadding),
@@ -529,7 +598,10 @@ Widget buildFoodsCard(
                               width: size.width * 0.42,
                               child: Text(
                                 item.subcategory!,
-                                style: Style.mediumTextStyle,
+                                style: Style.mediumTextStyle.copyWith(
+                                    color: c.isDarkTheme.value
+                                        ? Colors.white
+                                        : Colors.black87),
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
