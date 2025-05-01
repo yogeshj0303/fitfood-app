@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       initialBinding: AppBindings(),
       theme: Themes.light,
       darkTheme: Themes.dark,
+      themeMode: ThemeMode.light,
       home: FutureBuilder(
         future: SharedPrefs().autoLogin(),
         builder: (context, snapshot) {
