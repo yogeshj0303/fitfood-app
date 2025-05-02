@@ -86,6 +86,7 @@ class GetController extends GetxController {
   void updateTheme() {
     Get.changeTheme(isDarkTheme.value ? ThemeData.dark() : ThemeData.light());
   }
+  //gvdlighdorigh
 
   Future<void> toggleTheme() async {
     final prefs = await SharedPreferences.getInstance();
