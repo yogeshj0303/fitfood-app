@@ -44,13 +44,16 @@ class _CartState extends State<Cart> {
         backgroundColor:
             controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
         appBar: _buildAppBar(),
-        body: c.isCartLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : c.hasError.value
-                ? Center(child: Text(c.error.value))
-                : controller.role.value == 'Trainer'
-                    ? _buildTrainerCart(size)
-                    : _buildUserCart(size),
+        body: RefreshIndicator(
+          onRefresh: _loadCartData,
+          child: c.isCartLoading.value
+              ? const Center(child: CircularProgressIndicator())
+              : c.hasError.value
+                  ? Center(child: Text(c.error.value))
+                  : controller.role.value == 'Trainer'
+                      ? _buildTrainerCart(size)
+                      : _buildUserCart(size),
+        ),
       ),
     );
   }
@@ -80,17 +83,20 @@ class _CartState extends State<Cart> {
 
       return Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(defaultPadding),
-            child: SizedBox(
-              height: size.height * 0.58,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount:
-                    c.trainerCartData.value?.data?.cartItems?.length ?? 0,
-                itemBuilder: (context, index) => TrainersCartProductCard(
-                  snapshot: c.trainerCartData.value!,
-                  index: index,
+          SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(defaultPadding),
+              child: SizedBox(
+                height: size.height * 0.58,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount:
+                      c.trainerCartData.value?.data?.cartItems?.length ?? 0,
+                  itemBuilder: (context, index) => TrainersCartProductCard(
+                    snapshot: c.trainerCartData.value!,
+                    index: index,
+                  ),
                 ),
               ),
             ),
@@ -113,16 +119,19 @@ class _CartState extends State<Cart> {
 
       return Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(defaultPadding),
-            child: SizedBox(
-              height: size.height * 0.58,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: c.cartData.value?.data?.cartItems?.length ?? 0,
-                itemBuilder: (context, index) => CartProductCard(
-                  model: c.cartData.value!,
-                  index: index,
+          SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Padding(
+              padding: const EdgeInsets.all(defaultPadding),
+              child: SizedBox(
+                height: size.height * 0.58,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: c.cartData.value?.data?.cartItems?.length ?? 0,
+                  itemBuilder: (context, index) => CartProductCard(
+                    model: c.cartData.value!,
+                    index: index,
+                  ),
                 ),
               ),
             ),

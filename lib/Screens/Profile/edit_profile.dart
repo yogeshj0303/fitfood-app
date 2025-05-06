@@ -31,7 +31,16 @@ class EditProfile extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: Icon(Icons.arrow_back,
+              color: c.isDarkTheme.value ? Colors.white : Colors.black87),
+        ),
+        title: Text('Edit Profile',
+            style: TextStyle(
+              color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+              fontWeight: FontWeight.bold,
+            )),
         centerTitle: true,
         backgroundColor: c.isDarkTheme.value ? blackColor : whiteColor,
         foregroundColor: c.isDarkTheme.value ? whiteColor : blackColor,
@@ -105,13 +114,13 @@ class EditProfile extends StatelessWidget {
                           isHeight: true,
                           hintText: c.height.value,
                         ),
-                        // customTextField(
-                        //   controller: weightController,
-                        //   title: 'Weight',
-                        //   iconData: Icons.monitor_weight,
-                        //   isWeight: true,
-                        //   hintText: c.weight.value,
-                        // ),
+                        customTextField(
+                          controller: weightController,
+                          title: 'Weight',
+                          iconData: Icons.monitor_weight,
+                          isWeight: true,
+                          hintText: c.weight.value,
+                        ),
                         customTextField(
                           controller: prefController,
                           title: 'Preference',

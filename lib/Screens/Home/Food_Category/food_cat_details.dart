@@ -241,30 +241,96 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
             ),
           ),
           bottomSheet: Container(
-            padding: const EdgeInsets.all(8.0),
-            color: c1.isDarkTheme.value ? Colors.grey[850] : Colors.white,
-            child: InkWell(
-              onTap: () {
-                c1.role.value == 'Trainer'
-                    ? c.addToTrainerCart(
-                        widget.snapshot.data!.data![widget.ind].id!.toInt())
-                    : c.addToCart(
-                        widget.snapshot.data!.data![widget.ind].id!.toInt());
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.local_mall, color: primaryColor),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Add to cart',
-                    style: Style.mediumTextStyle.copyWith(
-                      color:
-                          c1.isDarkTheme.value ? Colors.white : Colors.black87,
-                    ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: c1.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Quantity controls
+                Container(
+                  decoration: BoxDecoration(
+                    color: c1.isDarkTheme.value ? Colors.grey[800] : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(25),
                   ),
-                ],
-              ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          if (c.qty.value > 1) {
+                            c.qty.value--;
+                          }
+                        },
+                        icon: Icon(
+                          Icons.remove_circle_outline,
+                          color: c1.isDarkTheme.value ? Colors.white70 : Colors.black87,
+                          size: 24,
+                        ),
+                      ),
+                      Obx(() => Text(
+                            c.qty.value.toString(),
+                            style: Style.mediumTextStyle.copyWith(
+                              color: c1.isDarkTheme.value ? Colors.white : Colors.black87,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )),
+                      IconButton(
+                        onPressed: () {
+                          if (c.qty.value < 11) {
+                            c.qty.value++;
+                          }
+                        },
+                        icon: Icon(
+                          Icons.add_circle_outline,
+                          color: c1.isDarkTheme.value ? Colors.white70 : Colors.black87,
+                          size: 24,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Add to cart button
+                ElevatedButton(
+                  onPressed: () {
+                    c1.role.value == 'Trainer'
+                        ? c.addToTrainerCart(
+                            widget.snapshot.data!.data![widget.ind].id!.toInt())
+                        : c.addToCart(
+                            widget.snapshot.data!.data![widget.ind].id!.toInt());
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                    elevation: 2,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.shopping_cart_outlined, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Add to Cart',
+                        style: Style.mediumTextStyle.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ));

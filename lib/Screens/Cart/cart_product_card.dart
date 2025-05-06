@@ -128,39 +128,132 @@ class CartProductCard extends StatelessWidget {
 
   showQuantityUpdateDialog(CartModel model, int index) {
     final item = model.data!.cartItems![index];
-    c.qty.value = 1;
-    return Get.defaultDialog(
-      title: 'Select Quantity',
-      content: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    c.qty.value = int.parse(item.quantity.toString());
+    return Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton(
-                  onPressed: () {
-                    c.qty.value > 1 ? c.qty.value-- : null;
-                  },
-                  child: Text('-', style: Style.largeTextStyle)),
-              MyContainer(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: defaultPadding * 3, vertical: defaultPadding),
-                child: Obx(() => Text(c.qty.value.toString())),
+              Text(
+                'Update Quantity',
+                style: Style.largeTextStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              TextButton(
-                  onPressed: () {
-                    c.qty.value < 11 ? c.qty.value++ : null;
-                  },
-                  child: Text('+', style: Style.largeTextStyle)),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (c.qty.value > 1) {
+                        c.qty.value--;
+                      }
+                    },
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: c.qty.value > 1 ? primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        color: c.qty.value > 1 ? primaryColor : Colors.grey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Obx(() => Text(
+                      c.qty.value.toString(),
+                      style: Style.largeTextStyle.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      if (c.qty.value < 11) {
+                        c.qty.value++;
+                      }
+                    },
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: c.qty.value < 11 ? primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: c.qty.value < 11 ? primaryColor : Colors.grey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(color: primaryColor),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: Style.normalTextStyle.copyWith(
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (c.qty.value != int.parse(item.quantity.toString())) {
+                          c.updateQuantity(qty: c.qty.value, cartId: item.id!.toInt());
+                        } else {
+                          Get.back();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Update',
+                        style: Style.normalTextStyle.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          myButton(
-              onPressed: () =>
-                  c.updateQuantity(qty: c.qty.value, cartId: item.id!.toInt()),
-              label: 'UPDATE',
-              color: primaryColor,
-              style: Style.smallWtextStyle)
-        ],
+        ),
       ),
     );
   }
@@ -289,39 +382,133 @@ class TrainersCartProductCard extends StatelessWidget {
 
   showQuantityUpdateDialog(TrainerCartModel snapshot, int index) {
     final item = snapshot.data!.cartItems![index];
-    c.qty.value = 1;
-    return Get.defaultDialog(
-      title: 'Select Quantity',
-      content: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    c.qty.value = int.parse(item.quantity.toString());
+    return Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              TextButton(
-                  onPressed: () {
-                    c.qty.value > 1 ? c.qty.value-- : null;
-                  },
-                  child: Text('-', style: Style.largeTextStyle)),
-              MyContainer(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: defaultPadding * 3, vertical: defaultPadding),
-                child: Obx(() => Text(c.qty.value.toString())),
+              Text(
+                'Update Quantity',
+                style: Style.largeTextStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              TextButton(
-                  onPressed: () {
-                    c.qty.value < 11 ? c.qty.value++ : null;
-                  },
-                  child: Text('+', style: Style.largeTextStyle)),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (c.qty.value > 1) {
+                        c.qty.value--;
+                      }
+                    },
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: c.qty.value > 1 ? primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.remove,
+                        color: c.qty.value > 1 ? primaryColor : Colors.grey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Obx(() => Text(
+                      c.qty.value.toString(),
+                      style: Style.largeTextStyle.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      if (c.qty.value < 11) {
+                        c.qty.value++;
+                      }
+                    },
+                    icon: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: c.qty.value < 11 ? primaryColor.withOpacity(0.1) : Colors.grey.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: c.qty.value < 11 ? primaryColor : Colors.grey,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Get.back(),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        side: BorderSide(color: primaryColor),
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: Style.normalTextStyle.copyWith(
+                          color: primaryColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (c.qty.value != int.parse(item.quantity.toString())) {
+                          c.updateTrainerCartQuantity(
+                              qty: c.qty.value, cartId: item.id!.toInt());
+                        } else {
+                          Get.back();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Update',
+                        style: Style.normalTextStyle.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          const SizedBox(height: 16),
-          myButton(
-              onPressed: () => c.updateTrainerCartQuantity(
-                  qty: c.qty.value, cartId: item.id!.toInt()),
-              label: 'UPDATE',
-              color: primaryColor,
-              style: Style.smallWtextStyle)
-        ],
+        ),
       ),
     );
   }

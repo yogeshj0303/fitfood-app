@@ -26,13 +26,14 @@ class CartController extends GetxController {
   Future<void> addToCart(int productId) async {
     isLoading.value = true;
     final url =
-        '${apiUrl}addtocart?user_id=${GlobalVariable.id}&subcategorie_id=$productId&quantity=1';
+        '${apiUrl}addtocart?user_id=${GlobalVariable.id}&subcategorie_id=$productId&quantity=${qty.value}';
     try {
       final response = await http.post(Uri.parse(url));
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['error'] == false) {
           isLoading.value = false;
+          qty.value = 1; // Reset quantity after adding to cart
           Fluttertoast.showToast(msg: data['message']);
         } else {
           isLoading.value = false;
@@ -95,6 +96,8 @@ class CartController extends GetxController {
         if (data['error'] == false) {
           isCartLoading.value = false;
           Get.back();
+          // Refresh cart data after successful update
+          await showCart();
           Fluttertoast.showToast(msg: 'Updated');
         } else {
           isCartLoading.value = false;
@@ -232,45 +235,57 @@ class CartController extends GetxController {
   Future<void> addToTrainerCart(int productId) async {
     isLoading.value = true;
     final url =
-        '${apiUrl}addCart?trainer_id=${GlobalVariable.trainersID}&subcategorie_id=$productId&quantity=1';
-    final response = await http.post(Uri.parse(url));
-    isLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isLoading.value = false;
-        Fluttertoast.showToast(msg: data['message']);
+        '${apiUrl}addCart?trainer_id=${GlobalVariable.trainersID}&subcategorie_id=$productId&quantity=${qty.value}';
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          isLoading.value = false;
+          qty.value = 1; // Reset quantity after adding to cart
+          Fluttertoast.showToast(msg: data['message']);
+        } else {
+          isLoading.value = false;
+          Fluttertoast.showToast(msg: 'Product is already in cart');
+        }
       } else {
         isLoading.value = false;
-        Fluttertoast.showToast(msg: 'Product is already in cart');
+        Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase}');
       }
-    } else {
+    } catch (e) {
       isLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
   Future<void> updateTrainerCartQuantity(
       {required int qty, required int cartId}) async {
+    isCartLoading.value = true;
     final url =
         '${apiUrl}addCartquantity?trainer_id=${GlobalVariable.trainersID}&cart_id=$cartId&quantity=$qty';
-    final response = await http.post(Uri.parse(url));
-    isCartLoading.value = true;
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      if (data['error'] == false) {
-        isCartLoading.value = false;
-        Get.back();
-        Fluttertoast.showToast(msg: 'Updated');
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['error'] == false) {
+          isCartLoading.value = false;
+          Get.back();
+          // Refresh cart data after successful update
+          await showTrainersCart();
+          Fluttertoast.showToast(msg: 'Updated');
+        } else {
+          isCartLoading.value = false;
+          Fluttertoast.showToast(msg: data['message']);
+        }
       } else {
         isCartLoading.value = false;
-        Fluttertoast.showToast(msg: data['message']);
+        Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase}');
       }
-    } else {
+    } catch (e) {
       isCartLoading.value = false;
-      Fluttertoast.showToast(
-          msg: '${response.statusCode} ${response.reasonPhrase}');
+      Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
