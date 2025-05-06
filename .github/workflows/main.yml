@@ -47,4 +47,3 @@ jobs:
           artifacts: "build/app/outputs/apk/release/*.apk"
           tag: "v${{ env.VERSION }}"
           token: ${{ secrets.TOKEN }}
-# vbsdubf
