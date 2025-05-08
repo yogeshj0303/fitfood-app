@@ -1,7 +1,9 @@
-import 'package:fit_food/Components/cart_controller.dart';
 import 'package:fit_food/Models/show_order_model.dart';
+import 'package:fit_food/Models/cart_model.dart';
+import 'package:fit_food/Components/cart_controller.dart';
 import 'package:intl/intl.dart';
 import '../../Constants/export.dart';
+import 'package:fit_food/Screens/Orders/order_details_screen.dart';
 
 class OrderScreen extends StatefulWidget {
   OrderScreen({super.key});
@@ -197,23 +199,53 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(defaultPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildOrderHeader(),
-          Divider(
-            height: 24,
-            color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OrderDetailsScreen(
+                orderData: orderData,
+                controller: controller,
+              ),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: controller.isDarkTheme.value ? Colors.black12 : Colors.grey.withOpacity(0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          _buildDeliveryAddress(),
-          Divider(
-            height: 14,
-            color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
+          child: Padding(
+            padding: const EdgeInsets.all(defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildOrderHeader(),
+                Divider(
+                  height: 24,
+                  color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
+                ),
+                _buildDeliveryAddress(),
+                Divider(
+                  height: 14,
+                  color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
+                ),
+                _buildOrderStatus(),
+              ],
+            ),
           ),
-          _buildOrderStatus(),
-        ],
+        ),
       ),
     );
   }
