@@ -6,163 +6,209 @@ String showOrderModelToJson(ShowOrderModel data) => json.encode(data.toJson());
 
 class ShowOrderModel {
   ShowOrderModel({
-    bool? error,
-    List<Orders>? orders,
+    bool? success,
+    List<OrderData>? data,
   }) {
-    _error = error;
-    _orders = orders;
+    _success = success;
+    _data = data;
   }
 
   ShowOrderModel.fromJson(dynamic json) {
-    _error = json['error'];
-    if (json['orders'] != null) {
-      _orders = [];
-      json['orders'].forEach((v) {
-        _orders?.add(Orders.fromJson(v));
+    _success = json['success'];
+    if (json['data'] != null) {
+      _data = [];
+      json['data'].forEach((v) {
+        _data?.add(OrderData.fromJson(v));
       });
     }
   }
-  bool? _error;
-  List<Orders>? _orders;
+  bool? _success;
+  List<OrderData>? _data;
   ShowOrderModel copyWith({
-    bool? error,
-    List<Orders>? orders,
+    bool? success,
+    List<OrderData>? data,
   }) =>
       ShowOrderModel(
-        error: error ?? _error,
-        orders: orders ?? _orders,
+        success: success ?? _success,
+        data: data ?? _data,
       );
-  bool? get error => _error;
-  List<Orders>? get orders => _orders;
+  bool? get success => _success;
+  List<OrderData>? get data => _data;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['error'] = _error;
-    if (_orders != null) {
-      map['orders'] = _orders?.map((v) => v.toJson()).toList();
+    map['success'] = _success;
+    if (_data != null) {
+      map['data'] = _data?.map((v) => v.toJson()).toList();
     }
     return map;
   }
 }
 
-Orders ordersFromJson(String str) => Orders.fromJson(json.decode(str));
-String ordersToJson(Orders data) => json.encode(data.toJson());
-
-class Orders {
-  Orders({
-    String? orderid,
-    String? activeStatus,
+class OrderData {
+  OrderData({
+    String? orderDetailId,
     Address? address,
-    List<Orderdetails>? orderdetails,
+    List<OrderProduct>? orderProducts,
   }) {
-    _orderid = orderid;
-    _activeStatus = activeStatus;
+    _orderDetailId = orderDetailId;
     _address = address;
-    _orderdetails = orderdetails;
+    _orderProducts = orderProducts;
   }
 
-  Orders.fromJson(dynamic json) {
-    _orderid = json['orderid'];
-    _activeStatus = json['active_status'];
-    _address =
-        json['address'] != null ? Address.fromJson(json['address']) : null;
-    if (json['orderdetails'] != null) {
-      _orderdetails = [];
-      json['orderdetails'].forEach((v) {
-        _orderdetails?.add(Orderdetails.fromJson(v));
+  OrderData.fromJson(dynamic json) {
+    _orderDetailId = json['order_detail_id'];
+    _address = json['address'] != null ? Address.fromJson(json['address']) : null;
+    if (json['order_products'] != null) {
+      _orderProducts = [];
+      json['order_products'].forEach((v) {
+        _orderProducts?.add(OrderProduct.fromJson(v));
       });
     }
   }
-  String? _orderid;
-  String? _activeStatus;
+  String? _orderDetailId;
   Address? _address;
-  List<Orderdetails>? _orderdetails;
-  Orders copyWith({
-    String? orderid,
-    String? activeStatus,
+  List<OrderProduct>? _orderProducts;
+  OrderData copyWith({
+    String? orderDetailId,
     Address? address,
-    List<Orderdetails>? orderdetails,
+    List<OrderProduct>? orderProducts,
   }) =>
-      Orders(
-        orderid: orderid ?? _orderid,
-        activeStatus: activeStatus ?? _activeStatus,
+      OrderData(
+        orderDetailId: orderDetailId ?? _orderDetailId,
         address: address ?? _address,
-        orderdetails: orderdetails ?? _orderdetails,
+        orderProducts: orderProducts ?? _orderProducts,
       );
-  String? get orderid => _orderid;
-  String? get activeStatus => _activeStatus;
+  String? get orderDetailId => _orderDetailId;
   Address? get address => _address;
-  List<Orderdetails>? get orderdetails => _orderdetails;
+  List<OrderProduct>? get orderProducts => _orderProducts;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['orderid'] = _orderid;
-    map['active_status'] = _activeStatus;
+    map['order_detail_id'] = _orderDetailId;
     if (_address != null) {
       map['address'] = _address?.toJson();
     }
-    if (_orderdetails != null) {
-      map['orderdetails'] = _orderdetails?.map((v) => v.toJson()).toList();
+    if (_orderProducts != null) {
+      map['order_products'] = _orderProducts?.map((v) => v.toJson()).toList();
     }
     return map;
   }
 }
 
-Orderdetails orderdetailsFromJson(String str) =>
-    Orderdetails.fromJson(json.decode(str));
-String orderdetailsToJson(Orderdetails data) => json.encode(data.toJson());
-
-class Orderdetails {
-  Orderdetails({
-    Details? details,
+class OrderProduct {
+  OrderProduct({
+    String? adminId,
+    String? trainerId,
+    String? orderid,
     String? quantity,
+    String? price,
+    String? status,
+    String? cartId,
+    int? addressId,
+    String? orderDate,
+    Product? products,
   }) {
-    _details = details;
+    _adminId = adminId;
+    _trainerId = trainerId;
+    _orderid = orderid;
     _quantity = quantity;
+    _price = price;
+    _status = status;
+    _cartId = cartId;
+    _addressId = addressId;
+    _orderDate = orderDate;
+    _products = products;
   }
 
-  Orderdetails.fromJson(dynamic json) {
-    _details =
-        json['details'] != null ? Details.fromJson(json['details']) : null;
+  OrderProduct.fromJson(dynamic json) {
+    _adminId = json['admin_id'];
+    _trainerId = json['trainer_id'];
+    _orderid = json['orderid'];
     _quantity = json['quantity'];
+    _price = json['price'];
+    _status = json['status'];
+    _cartId = json['cart_id'];
+    _addressId = json['address_id'];
+    _orderDate = json['order_date'];
+    _products = json['products'] != null ? Product.fromJson(json['products']) : null;
   }
-  Details? _details;
+  String? _adminId;
+  String? _trainerId;
+  String? _orderid;
   String? _quantity;
-  Orderdetails copyWith({
-    Details? details,
+  String? _price;
+  String? _status;
+  String? _cartId;
+  int? _addressId;
+  String? _orderDate;
+  Product? _products;
+  OrderProduct copyWith({
+    String? adminId,
+    String? trainerId,
+    String? orderid,
     String? quantity,
+    String? price,
+    String? status,
+    String? cartId,
+    int? addressId,
+    String? orderDate,
+    Product? products,
   }) =>
-      Orderdetails(
-        details: details ?? _details,
+      OrderProduct(
+        adminId: adminId ?? _adminId,
+        trainerId: trainerId ?? _trainerId,
+        orderid: orderid ?? _orderid,
         quantity: quantity ?? _quantity,
+        price: price ?? _price,
+        status: status ?? _status,
+        cartId: cartId ?? _cartId,
+        addressId: addressId ?? _addressId,
+        orderDate: orderDate ?? _orderDate,
+        products: products ?? _products,
       );
-  Details? get details => _details;
+  String? get adminId => _adminId;
+  String? get trainerId => _trainerId;
+  String? get orderid => _orderid;
   String? get quantity => _quantity;
+  String? get price => _price;
+  String? get status => _status;
+  String? get cartId => _cartId;
+  int? get addressId => _addressId;
+  String? get orderDate => _orderDate;
+  Product? get products => _products;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    if (_details != null) {
-      map['details'] = _details?.toJson();
-    }
+    map['admin_id'] = _adminId;
+    map['trainer_id'] = _trainerId;
+    map['orderid'] = _orderid;
     map['quantity'] = _quantity;
+    map['price'] = _price;
+    map['status'] = _status;
+    map['cart_id'] = _cartId;
+    map['address_id'] = _addressId;
+    map['order_date'] = _orderDate;
+    if (_products != null) {
+      map['products'] = _products?.toJson();
+    }
     return map;
   }
 }
 
-Details detailsFromJson(String str) => Details.fromJson(json.decode(str));
-String detailsToJson(Details data) => json.encode(data.toJson());
-
-class Details {
-  Details({
+class Product {
+  Product({
     num? id,
     String? categoryId,
     String? mealId,
     String? subcategory,
     String? image,
     String? price,
+    String? quantity,
     String? description,
     dynamic rating,
     String? status,
+    String? video,
     String? createdAt,
     String? updatedAt,
   }) {
@@ -172,23 +218,27 @@ class Details {
     _subcategory = subcategory;
     _image = image;
     _price = price;
+    _quantity = quantity;
     _description = description;
     _rating = rating;
     _status = status;
+    _video = video;
     _createdAt = createdAt;
     _updatedAt = updatedAt;
   }
 
-  Details.fromJson(dynamic json) {
+  Product.fromJson(dynamic json) {
     _id = json['id'];
     _categoryId = json['category_id'];
     _mealId = json['meal_id'];
     _subcategory = json['subcategory'];
     _image = json['image'];
     _price = json['price'];
+    _quantity = json['quantity'];
     _description = json['description'];
     _rating = json['rating'];
     _status = json['status'];
+    _video = json['video'];
     _createdAt = json['created_at'];
     _updatedAt = json['updated_at'];
   }
@@ -198,34 +248,40 @@ class Details {
   String? _subcategory;
   String? _image;
   String? _price;
+  String? _quantity;
   String? _description;
   dynamic _rating;
   String? _status;
+  String? _video;
   String? _createdAt;
   String? _updatedAt;
-  Details copyWith({
+  Product copyWith({
     num? id,
     String? categoryId,
     String? mealId,
     String? subcategory,
     String? image,
     String? price,
+    String? quantity,
     String? description,
     dynamic rating,
     String? status,
+    String? video,
     String? createdAt,
     String? updatedAt,
   }) =>
-      Details(
+      Product(
         id: id ?? _id,
         categoryId: categoryId ?? _categoryId,
         mealId: mealId ?? _mealId,
         subcategory: subcategory ?? _subcategory,
         image: image ?? _image,
         price: price ?? _price,
+        quantity: quantity ?? _quantity,
         description: description ?? _description,
         rating: rating ?? _rating,
         status: status ?? _status,
+        video: video ?? _video,
         createdAt: createdAt ?? _createdAt,
         updatedAt: updatedAt ?? _updatedAt,
       );
@@ -235,9 +291,11 @@ class Details {
   String? get subcategory => _subcategory;
   String? get image => _image;
   String? get price => _price;
+  String? get quantity => _quantity;
   String? get description => _description;
   dynamic get rating => _rating;
   String? get status => _status;
+  String? get video => _video;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
 
@@ -249,9 +307,11 @@ class Details {
     map['subcategory'] = _subcategory;
     map['image'] = _image;
     map['price'] = _price;
+    map['quantity'] = _quantity;
     map['description'] = _description;
     map['rating'] = _rating;
     map['status'] = _status;
+    map['video'] = _video;
     map['created_at'] = _createdAt;
     map['updated_at'] = _updatedAt;
     return map;
@@ -264,6 +324,7 @@ String addressToJson(Address data) => json.encode(data.toJson());
 class Address {
   Address({
     num? id,
+    String? userId,
     String? trainerId,
     String? city,
     String? state,
@@ -274,6 +335,7 @@ class Address {
     String? updatedAt,
   }) {
     _id = id;
+    _userId = userId;
     _trainerId = trainerId;
     _city = city;
     _state = state;
@@ -286,6 +348,7 @@ class Address {
 
   Address.fromJson(dynamic json) {
     _id = json['id'];
+    _userId = json['user_id'];
     _trainerId = json['trainer_id'];
     _city = json['city'];
     _state = json['state'];
@@ -296,6 +359,7 @@ class Address {
     _updatedAt = json['updated_at'];
   }
   num? _id;
+  String? _userId;
   String? _trainerId;
   String? _city;
   String? _state;
@@ -306,6 +370,7 @@ class Address {
   String? _updatedAt;
   Address copyWith({
     num? id,
+    String? userId,
     String? trainerId,
     String? city,
     String? state,
@@ -317,6 +382,7 @@ class Address {
   }) =>
       Address(
         id: id ?? _id,
+        userId: userId ?? _userId,
         trainerId: trainerId ?? _trainerId,
         city: city ?? _city,
         state: state ?? _state,
@@ -327,6 +393,7 @@ class Address {
         updatedAt: updatedAt ?? _updatedAt,
       );
   num? get id => _id;
+  String? get userId => _userId;
   String? get trainerId => _trainerId;
   String? get city => _city;
   String? get state => _state;
@@ -339,6 +406,7 @@ class Address {
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['id'] = _id;
+    map['user_id'] = _userId;
     map['trainer_id'] = _trainerId;
     map['city'] = _city;
     map['state'] = _state;

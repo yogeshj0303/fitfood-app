@@ -3,8 +3,13 @@ import 'Constants/export.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize notifications
+  final notificationService = NotificationService();
+  await notificationService.initNotification();
+  
   runApp(const MyApp());
 }
 //vedfvbedf

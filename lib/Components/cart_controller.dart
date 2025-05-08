@@ -214,12 +214,12 @@ class CartController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        if (data['error'] == false) {
+        if (data['success'] == true) {
           final result = ShowOrderModel.fromJson(data);
           showOrderModel.value = result;
           return result;
         }
-        throw Exception(data['message'] ?? 'something went wrong');
+        throw Exception(data['message'] ?? 'Something went wrong');
       }
       throw Exception('${response.statusCode} ${response.reasonPhrase}');
     } catch (e) {

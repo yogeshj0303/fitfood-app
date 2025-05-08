@@ -75,34 +75,88 @@ class HomeUtils {
   }
 
   Future<ClientsModel> getClients() async {
-    final url = '${apiUrl}appointment?expert_id=${GlobalVariable.trainersID}';
-    final response = await http.post(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body.toString());
-      return ClientsModel.fromJson(data);
+    try {
+      if (GlobalVariable.trainersID == null) {
+        debugPrint('Trainer ID is null');
+        return ClientsModel(error: true, data: []);
+      }
+      
+      final url = '${apiUrl}appointment?expert_id=${GlobalVariable.trainersID}';
+      debugPrint('Fetching clients from URL: $url');
+      
+      final response = await http.post(Uri.parse(url));
+      debugPrint('Response status code: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
+      
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body.toString());
+        if (data['error'] == false) {
+          return ClientsModel.fromJson(data);
+        } else {
+          debugPrint('API returned error: ${data['message']}');
+          return ClientsModel(error: true, data: []);
+        }
+      } else {
+        debugPrint('HTTP error: ${response.statusCode}');
+        return ClientsModel(error: true, data: []);
+      }
+    } catch (e) {
+      debugPrint('Error fetching clients: $e');
+      return ClientsModel(error: true, data: []);
     }
-    throw Exception('Unable to load data');
   }
 
   Future<void> getExpertConsult(int expertId) async {
     return _debounceRequest(() async {
-      final url =
-          '${apiUrl}consult?admin_id=${GlobalVariable.id}&expert_id=$expertId';
-      c.isConsultLoad.value = true;
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-      final data = jsonDecode(response.body.toString());
-      if (data['error'] == false) {
-        Fluttertoast.showToast(
-            msg: 'Request successful! Our team will call you soon');
-        c.isConsultLoad.value = false;
-      } else {
-        Fluttertoast.showToast(msg: data['data']);
+      try {
+        final url =
+            '${apiUrl}consult?admin_id=${GlobalVariable.id}&expert_id=$expertId';
+        c.isConsultLoad.value = true;
+        final response = await http.post(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body.toString());
+          if (data['error'] == false) {
+            Fluttertoast.showToast(
+              msg: 'Request successful! Our team will call you soon',
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black87,
+              textColor: Colors.white,
+              fontSize: 16.0
+            );
+            c.isConsultLoad.value = false;
+          } else {
+            Fluttertoast.showToast(
+              msg: data['data']?.toString() ?? 'Something went wrong',
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.black87,
+              textColor: Colors.white,
+              fontSize: 16.0
+            );
+            c.isConsultLoad.value = false;
+          }
+        } else {
+          Fluttertoast.showToast(
+            msg: '${response.statusCode} ${response.reasonPhrase ?? "Unknown error"}',
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.black87,
+            textColor: Colors.white,
+            fontSize: 16.0
+          );
           c.isConsultLoad.value = false;
         }
-      } else {
+      } catch (e) {
+        debugPrint('Error in getExpertConsult: $e');
         Fluttertoast.showToast(
-            msg: '${response.statusCode} ${response.reasonPhrase}');
+          msg: 'An error occurred. Please try again.',
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.black87,
+          textColor: Colors.white,
+          fontSize: 16.0
+        );
         c.isConsultLoad.value = false;
       }
     });
@@ -155,28 +209,36 @@ class HomeUtils {
 
   Future streamNotification(int userId) async {
     return _debounceRequest(() async {
-      final url = '${apiUrl}getnotifications?admin_id=$userId';
-      String title = '';
-      String body = '';
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-      final data = jsonDecode(response.body.toString());
-      int totalnotiCount = NotificationModel.fromJson(data).message!.length;
-      if (data['error'] == false && totalnotiCount != 0) {
-        final item = NotificationModel.fromJson(data).message![0];
-        title = item.type!;
-        body = item.message!;
-        if (c.prevnotiCount.value < totalnotiCount) {
-          c.notiCount.value = totalnotiCount - c.prevnotiCount.value;
-          NotificationService().showNotification(title: title, body: body);
-          c.prevnotiCount.value = totalnotiCount;
-          SharedPrefs().saveNotiCount(c.prevnotiCount.value);
+      try {
+        final url = '${apiUrl}getnotifications?admin_id=$userId';
+        String title = '';
+        String body = '';
+        final response = await http.post(Uri.parse(url));
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body.toString());
+          int totalnotiCount = NotificationModel.fromJson(data).message!.length;
+          if (data['error'] == false && totalnotiCount != 0) {
+            final item = NotificationModel.fromJson(data).message![0];
+            title = item.type!;
+            body = item.message!;
+            if (c.prevnotiCount.value < totalnotiCount) {
+              c.notiCount.value = totalnotiCount - c.prevnotiCount.value;
+              try {
+                await NotificationService().showNotification(title: title, body: body);
+              } catch (e) {
+                debugPrint('Error showing notification: $e');
+              }
+              c.prevnotiCount.value = totalnotiCount;
+              await SharedPrefs().saveNotiCount(c.prevnotiCount.value);
+            }
+            if (c.isNotiTapped.value) {
+              c.notiCount.value = 0;
+              c.isNotiTapped.value = false;
+            }
+          }
         }
-        if (c.isNotiTapped.value) {
-          c.notiCount.value = 0;
-          c.isNotiTapped.value = false;
-        }
-      }
+      } catch (e) {
+        debugPrint('Error in streamNotification: $e');
       }
     });
   }

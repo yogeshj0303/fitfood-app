@@ -12,10 +12,7 @@ class OrderScreen extends StatefulWidget {
 
 class _OrderScreenState extends State<OrderScreen> {
   final _controller = Get.put(GetController());
-
   final _cartController = Get.put(CartController());
-
-  ShowOrderModel? orderModel;
 
   @override
   void initState() {
@@ -47,13 +44,11 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+      backgroundColor: _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
       appBar: _buildAppBar(),
       body: Container(
         decoration: BoxDecoration(
-          color:
-              _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
+          color: _controller.isDarkTheme.value ? Colors.grey[900] : Colors.white,
         ),
         child: _buildBody(),
       ),
@@ -71,8 +66,7 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
       centerTitle: true,
       elevation: _controller.isDarkTheme.value ? 0 : 1,
-      backgroundColor:
-          _controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+      backgroundColor: _controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
     );
   }
 
@@ -89,7 +83,7 @@ class _OrderScreenState extends State<OrderScreen> {
         return _buildErrorWidget();
       }
 
-      if (orders?.orders == null || orders!.orders!.isEmpty) {
+      if (orders?.data == null || orders!.data!.isEmpty) {
         return _buildEmptyOrderWidget();
       }
 
@@ -106,27 +100,22 @@ class _OrderScreenState extends State<OrderScreen> {
         padding: const EdgeInsets.all(defaultPadding),
         child: ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
-          itemCount: snapshot.orders!.length,
+          itemCount: snapshot.data!.length,
           itemBuilder: (context, index) => Container(
             margin: const EdgeInsets.only(bottom: defaultPadding),
             decoration: BoxDecoration(
-              color: _controller.isDarkTheme.value
-                  ? Colors.grey[850]
-                  : Colors.white,
+              color: _controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: _controller.isDarkTheme.value
-                      ? Colors.black12
-                      : Colors.grey.withOpacity(0.2),
+                  color: _controller.isDarkTheme.value ? Colors.black12 : Colors.grey.withOpacity(0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 5),
                 ),
               ],
             ),
             child: OrderCard(
-              snapshot: snapshot,
-              index: index,
+              orderData: snapshot.data![index],
               controller: _controller,
             ),
           ),
@@ -143,9 +132,7 @@ class _OrderScreenState extends State<OrderScreen> {
           Icon(
             Icons.receipt_long_outlined,
             size: 64,
-            color: _controller.isDarkTheme.value
-                ? Colors.grey[400]
-                : Colors.grey[500],
+            color: _controller.isDarkTheme.value ? Colors.grey[400] : Colors.grey[500],
           ),
           const SizedBox(height: 16),
           Text(
@@ -153,9 +140,7 @@ class _OrderScreenState extends State<OrderScreen> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
-              color: _controller.isDarkTheme.value
-                  ? Colors.white
-                  : Colors.grey[600],
+              color: _controller.isDarkTheme.value ? Colors.white : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 8),
@@ -163,9 +148,7 @@ class _OrderScreenState extends State<OrderScreen> {
             'Your order history will appear here',
             style: TextStyle(
               fontSize: 14,
-              color: _controller.isDarkTheme.value
-                  ? Colors.white70
-                  : Colors.grey[500],
+              color: _controller.isDarkTheme.value ? Colors.white70 : Colors.grey[500],
             ),
           ),
         ],
@@ -203,53 +186,39 @@ class _OrderScreenState extends State<OrderScreen> {
 }
 
 class OrderCard extends StatelessWidget {
-  final ShowOrderModel snapshot;
-  final int index;
+  final OrderData orderData;
   final GetController controller;
 
   const OrderCard({
     super.key,
-    required this.snapshot,
-    required this.index,
+    required this.orderData,
     required this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
-    final order = snapshot.orders?[index];
-    if (order == null) return const SizedBox.shrink();
-
     return Padding(
       padding: const EdgeInsets.all(defaultPadding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildOrderHeader(order),
+          _buildOrderHeader(),
           Divider(
             height: 24,
-            color: controller.isDarkTheme.value
-                ? Colors.white24
-                : Colors.grey.shade200,
+            color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
           ),
-          _buildDeliveryAddress(order.address),
-          const SizedBox(height: 6),
-          _buildOrderItems(order),
+          _buildDeliveryAddress(),
           Divider(
             height: 14,
-            color: controller.isDarkTheme.value
-                ? Colors.white24
-                : Colors.grey.shade200,
+            color: controller.isDarkTheme.value ? Colors.white24 : Colors.grey.shade200,
           ),
-          _buildOrderStatus(order.activeStatus),
+          _buildOrderStatus(),
         ],
       ),
     );
   }
 
-  Widget _buildOrderHeader(Orders order) {
-    String? formattedDate =
-        _formatDate(order.orderdetails?[0].details?.createdAt);
-
+  Widget _buildOrderHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -257,24 +226,20 @@ class OrderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Order #${order.orderid}',
+              'Order #${orderData.orderDetailId}',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: controller.isDarkTheme.value
-                    ? Colors.white
-                    : Colors.black87,
+                color: controller.isDarkTheme.value ? Colors.white : Colors.black87,
               ),
             ),
-            if (formattedDate != null) ...[
+            if (orderData.orderProducts?.isNotEmpty == true) ...[
               const SizedBox(height: 4),
               Text(
-                formattedDate,
+                orderData.orderProducts![0].orderDate ?? '',
                 style: TextStyle(
                   fontSize: 14,
-                  color: controller.isDarkTheme.value
-                      ? Colors.white70
-                      : Colors.grey[600],
+                  color: controller.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
                 ),
               ),
             ],
@@ -284,8 +249,8 @@ class OrderCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDeliveryAddress(Address? address) {
-    if (address == null) return const SizedBox.shrink();
+  Widget _buildDeliveryAddress() {
+    if (orderData.address == null) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,75 +261,24 @@ class OrderCard extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '''${address.address1 ?? ''},
-${address.locality ?? ''},
-${address.city ?? ''}, ${address.state ?? ''},
-${address.pinCode ?? ''}''',
+          '''${orderData.address?.address1 ?? ''},
+${orderData.address?.locality ?? ''},
+${orderData.address?.city ?? ''}, ${orderData.address?.state ?? ''},
+${orderData.address?.pinCode ?? ''}''',
           style: Style.smalltextStyle.copyWith(color: Colors.grey[600]),
         ),
       ],
     );
   }
 
-  Widget _buildOrderItems(Orders order) {
-    if (order.orderdetails == null || order.orderdetails!.isEmpty) {
+  Widget _buildOrderStatus() {
+    if (orderData.orderProducts == null || orderData.orderProducts!.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: order.orderdetails?.length ?? 0,
-      itemBuilder: (context, ind) {
-        final item = order.orderdetails?[ind].details;
-        if (item == null) return const SizedBox.shrink();
-
-        return Padding(
-          padding: const EdgeInsets.only(top: defaultPadding),
-          child: Row(
-            children: [
-              RoundedContainer(
-                height: 100,
-                width: 100,
-                isImage: true,
-                networkImg:
-                    item.image != null ? '$imgPath/${item.image}' : null,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      (item.subcategory ?? 'Unknown Item').toUpperCase(),
-                      style: Style.mediumTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '₹${item.price ?? 0}',
-                      style: Style.mediumTextStyle.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Quantity: ${order.orderdetails?[ind].quantity ?? 0}',
-                      style: Style.smalltextStyle.copyWith(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOrderStatus(String? status) {
+    // Get the status from the first order product
+    final status = orderData.orderProducts![0].status;
+    
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -372,26 +286,36 @@ ${address.pinCode ?? ''}''',
           'Status:',
           style: Style.mediumTextStyle.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          status ?? 'Unknown',
-          style: Style.mediumTextStyle.copyWith(color: Colors.grey[600]),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: _getStatusColor(status).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            status?.toUpperCase() ?? 'UNKNOWN',
+            style: Style.mediumTextStyle.copyWith(
+              color: _getStatusColor(status),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ],
     );
   }
 
-  // Add this helper method to safely format the date
-  String? _formatDate(String? dateString) {
-    if (dateString == null || dateString.isEmpty) {
-      return null;
-    }
-
-    try {
-      final date = DateTime.parse(dateString);
-      return DateFormat('MMM dd, yyyy').format(date);
-    } catch (e) {
-      print('Error parsing date: $dateString');
-      return null;
+  Color _getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+        return Colors.blue;
+      case 'processing':
+        return Colors.orange;
+      case 'delivered':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
     }
   }
 }
