@@ -60,7 +60,7 @@ class UserHealthDetail extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildDetailText(
-                              'BMI', c.bmi.value.toString().substring(0, 5)),
+                              'BMI', c.bmi.value.toStringAsFixed(2)),
                           const SizedBox(height: 8),
                           _buildDetailText('Height', '${c.height.value} feet'),
                           const SizedBox(height: 8),

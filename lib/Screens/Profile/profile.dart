@@ -313,98 +313,114 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-        child: Column(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.badge, size: 30, color: primaryColor),
-              title: Text(
-                'Edit Profile',
-                style: TextStyle(
-                  color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.badge, size: 30, color: primaryColor),
+                title: Text(
+                  'Edit Profile',
+                  style: TextStyle(
+                    color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  size: 15,
+                  color: c.isDarkTheme.value ? Colors.white70 : Colors.black54,
+                ),
+                onTap: () => c.role.value == 'User'
+                    ? Get.to(() => EditProfile(),
+                        transition: Transition.rightToLeft)
+                    : Get.to(() => TrainerEditProfile(),
+                        transition: Transition.rightToLeft),
+              ),
+              c.role.value == 'User'
+                  ? ListTile(
+                      leading: const Icon(Icons.card_membership,
+                          size: 30, color: primaryColor),
+                      title: const Text('Subscription'),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                      onTap: () => Get.to(() => const SubscriptionPlan(),
+                          transition: Transition.rightToLeft),
+                    )
+                  : Container(),
+              c.role.value == 'User'
+                  ? ListTile(
+                      leading: const Icon(Icons.support,
+                          size: 30, color: primaryColor),
+                      title: const Text('Consulting History'),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                      onTap: () => Get.to(() => ConsultHistory(),
+                          transition: Transition.rightToLeft),
+                    )
+                  : Container(),
+              ListTile(
+                leading: const Icon(Icons.location_city,
+                    size: 30, color: primaryColor),
+                title: const Text('Saved Address'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                onTap: () => Get.to(() => const SavedAddress(forOrder: false),
+                    transition: Transition.rightToLeft),
+              ),
+              ListTile(
+                leading: const Icon(Icons.help, size: 30, color: primaryColor),
+                title: const Text('FAQ'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                onTap: () =>
+                    Get.to(() => Faq(), transition: Transition.rightToLeft),
+              ),
+              ListTile(
+                leading: const Icon(Icons.group, size: 30, color: primaryColor),
+                title: const Text('About us'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                onTap: () => Get.to(() => const AboutUs(),
+                    transition: Transition.rightToLeft),
+              ),
+              ListTile(
+                leading: const Icon(Icons.gavel, size: 30, color: primaryColor),
+                title: const Text('Terms & Condition'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                onTap: () =>
+                    Get.to(() => Terms(), transition: Transition.rightToLeft),
+              ),
+              ListTile(
+                leading: const Icon(Icons.health_and_safety,
+                    size: 30, color: primaryColor),
+                title: const Text('Privacy Policy'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                onTap: () => Get.to(() => PrivacyPolicy(),
+                    transition: Transition.rightToLeft),
+              ),
+              ListTile(
+                leading: const Icon(Icons.dark_mode, size: 30, color: primaryColor),
+                title: const Text('Dark Mode'),
+                trailing: Switch(
+                  value: c.isDarkTheme.value,
+                  onChanged: (value) => c.toggleTheme(),
+                  activeColor: primaryColor,
+                  activeTrackColor: primaryColor.withOpacity(0.5),
+                  inactiveThumbColor: Colors.grey,
+                  inactiveTrackColor: Colors.grey.withOpacity(0.5),
                 ),
               ),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 15,
-                color: c.isDarkTheme.value ? Colors.white70 : Colors.black54,
-              ),
-              onTap: () => c.role.value == 'User'
-                  ? Get.to(() => EditProfile(),
-                      transition: Transition.rightToLeft)
-                  : Get.to(() => TrainerEditProfile(),
-                      transition: Transition.rightToLeft),
-            ),
-            c.role.value == 'User'
-                ? ListTile(
-                    leading: const Icon(Icons.card_membership,
-                        size: 30, color: primaryColor),
-                    title: const Text('Subscription'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-                    onTap: () => Get.to(() => const SubscriptionPlan(),
-                        transition: Transition.rightToLeft),
-                  )
-                : Container(),
-            c.role.value == 'User'
-                ? ListTile(
-                    leading: const Icon(Icons.support,
-                        size: 30, color: primaryColor),
-                    title: const Text('Consulting History'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-                    onTap: () => Get.to(() => ConsultHistory(),
-                        transition: Transition.rightToLeft),
-                  )
-                : Container(),
-            ListTile(
-              leading: const Icon(Icons.location_city,
-                  size: 30, color: primaryColor),
-              title: const Text('Saved Address'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-              onTap: () => Get.to(() => const SavedAddress(forOrder: false),
-                  transition: Transition.rightToLeft),
-            ),
-            ListTile(
-              leading: const Icon(Icons.help, size: 30, color: primaryColor),
-              title: const Text('FAQ'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-              onTap: () =>
-                  Get.to(() => Faq(), transition: Transition.rightToLeft),
-            ),
-            ListTile(
-              leading: const Icon(Icons.group, size: 30, color: primaryColor),
-              title: const Text('About us'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-              onTap: () => Get.to(() => const AboutUs(),
-                  transition: Transition.rightToLeft),
-            ),
-            ListTile(
-              leading: const Icon(Icons.gavel, size: 30, color: primaryColor),
-              title: const Text('Terms & Condition'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-              onTap: () =>
-                  Get.to(() => Terms(), transition: Transition.rightToLeft),
-            ),
-            ListTile(
-              leading: const Icon(Icons.health_and_safety,
-                  size: 30, color: primaryColor),
-              title: const Text('Privacy Policy'),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-              onTap: () => Get.to(() => PrivacyPolicy(),
-                  transition: Transition.rightToLeft),
-            ),
-            ListTile(
-                leading:
-                    const Icon(Icons.logout, size: 30, color: primaryColor),
-                title: const Text('Log out'),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-                onTap: () => Get.defaultDialog(
-                      title: 'Confirm Logout',
-                      middleText: 'Are you sure you want to logout',
-                      onConfirm: () => SharedPrefs().loginClear(),
-                      textConfirm: 'Logout',
-                      confirmTextColor: whiteColor,
-                      onCancel: () => Get.back(),
-                    )),
-          ],
+              ListTile(
+                  leading:
+                      const Icon(Icons.logout, size: 30, color: primaryColor),
+                  title: const Text('Log out'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 15),
+                  onTap: () => Get.defaultDialog(
+                        title: 'Confirm Logout',
+                        middleText: 'Are you sure you want to logout',
+                        onConfirm: () => SharedPrefs().loginClear(),
+                        textConfirm: 'Logout',
+                        confirmTextColor: whiteColor,
+                        onCancel: () => Get.back(),
+                      )),
+            ],
+          ),
         ),
       ),
     );

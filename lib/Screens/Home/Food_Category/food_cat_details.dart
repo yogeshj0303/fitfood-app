@@ -77,20 +77,57 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
                                     color: Colors.white.withOpacity(0.9),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: IconButton(
-                                    onPressed: () {
-                                      // Navigate to MainScreen and switch to cart tab
-                                      Get.until((route) =>
-                                          Get.currentRoute == '/MainScreen');
-                                      Get.find<GetController>()
-                                          .currIndex
-                                          .value = 3; // Cart is at index 3
-                                    },
-                                    icon: const Icon(
-                                      Icons.shopping_cart,
-                                      color: primaryColor,
-                                      size: 28,
-                                    ),
+                                  child: Stack(
+                                    children: [
+                                      IconButton(
+                                        onPressed: () {
+                                          // Navigate to MainScreen and switch to cart tab
+                                          Get.until((route) =>
+                                              Get.currentRoute == '/MainScreen');
+                                          Get.find<GetController>()
+                                              .currIndex
+                                              .value = 3; // Cart is at index 3
+                                        },
+                                        icon: const Icon(
+                                          Icons.shopping_cart,
+                                          color: primaryColor,
+                                          size: 28,
+                                        ),
+                                      ),
+                                      Obx(() {
+                                        if (c.qty.value > 0) {
+                                          return Positioned(
+                                            right: 0,
+                                            top: 0,
+                                            child: Container(
+                                              padding: const EdgeInsets.all(4),
+                                              decoration: BoxDecoration(
+                                                color: Colors.red,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              constraints: const BoxConstraints(
+                                                minWidth: 16,
+                                                minHeight: 16,
+                                              ),
+                                              child: Text(
+                                                c.qty.value.toString(),
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
+                                      }),
+                                    ],
                                   ),
                                 ),
                               ),

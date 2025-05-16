@@ -1,9 +1,11 @@
 import 'package:fit_food/Screens/Progress/bmi_graph.dart';
 import '../../Constants/export.dart';
+import '../../Controllers/home_controller.dart';
 
 class ProgressScreen extends StatelessWidget {
   ProgressScreen({super.key});
   final c = Get.put(GetController());
+  final homeController = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +28,6 @@ class ProgressScreen extends StatelessWidget {
                 backgroundColor:
                     c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
                 elevation: c.isDarkTheme.value ? 0 : 1,
-                actions: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: Switch(
-                      value: c.isDarkTheme.value,
-                      onChanged: (value) => c.toggleTheme(),
-                      activeColor: primaryColor,
-                      activeTrackColor: primaryColor.withOpacity(0.5),
-                      inactiveThumbColor: Colors.grey,
-                      inactiveTrackColor: Colors.grey.withOpacity(0.5),
-                    ),
-                  ),
-                ],
               ),
               body: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),

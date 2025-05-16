@@ -29,7 +29,7 @@ class UserDetails extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('BMI : ${item.bmi.toString().substring(0, 5)}',
+                    Text('BMI : ${(double.tryParse(item.bmi?.toString() ?? '0.0') ?? 0.0).toStringAsFixed(2)}',
                         style: Style.normalLightTextStyle),
                     const SizedBox(height: 8),
                     Text('Height : ${item.height} feet',

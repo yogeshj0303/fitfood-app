@@ -143,30 +143,7 @@ class OrderProduct {
   int? _addressId;
   String? _orderDate;
   Product? _products;
-  OrderProduct copyWith({
-    String? adminId,
-    String? trainerId,
-    String? orderid,
-    String? quantity,
-    String? price,
-    String? status,
-    String? cartId,
-    int? addressId,
-    String? orderDate,
-    Product? products,
-  }) =>
-      OrderProduct(
-        adminId: adminId ?? _adminId,
-        trainerId: trainerId ?? _trainerId,
-        orderid: orderid ?? _orderid,
-        quantity: quantity ?? _quantity,
-        price: price ?? _price,
-        status: status ?? _status,
-        cartId: cartId ?? _cartId,
-        addressId: addressId ?? _addressId,
-        orderDate: orderDate ?? _orderDate,
-        products: products ?? _products,
-      );
+
   String? get adminId => _adminId;
   String? get trainerId => _trainerId;
   String? get orderid => _orderid;
@@ -177,6 +154,20 @@ class OrderProduct {
   int? get addressId => _addressId;
   String? get orderDate => _orderDate;
   Product? get products => _products;
+
+  // Helper method to get the actual price
+  double get actualPrice {
+    if (_price == null || _price == "0") {
+      return double.tryParse(_products?.price ?? '0') ?? 0;
+    }
+    return double.tryParse(_price ?? '0') ?? 0;
+  }
+
+  // Helper method to get total price for the item
+  double get totalPrice {
+    final qty = int.tryParse(_quantity ?? '1') ?? 1;
+    return actualPrice * qty;
+  }
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

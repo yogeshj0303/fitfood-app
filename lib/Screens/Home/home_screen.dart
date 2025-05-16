@@ -295,9 +295,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('BMI : ${c.bmi.value.toString().substring(0, 5)}',
+                      Text('BMI : ${c.bmi.value.toStringAsFixed(2)}',
                           style: Style.normalWTextStyle),
-                      Text('Height : ${c.height.value} feet',
+                      Text('Height : ${(double.parse(c.height.value) / 30.48).toStringAsFixed(2)} feet',
                           style: Style.normalWTextStyle),
                       Text('Weight : ${c.weight.value} kg',
                           style: Style.normalWTextStyle),

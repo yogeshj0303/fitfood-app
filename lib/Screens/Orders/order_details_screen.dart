@@ -351,6 +351,9 @@ class OrderDetailsScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final item = orderData.orderProducts![index];
                 final imageUrl = _getImageUrl(item.products?.image);
+                final quantity = int.tryParse(item.quantity ?? '1') ?? 1;
+                final productPrice = double.tryParse(item.products?.price ?? '0') ?? 0;
+                final totalPrice = productPrice * quantity;
                 
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -434,15 +437,29 @@ class OrderDetailsScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                '₹${item.price}',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: controller.isDarkTheme.value
-                                      ? primaryColor
-                                      : primaryDarkColor,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '₹${productPrice.toStringAsFixed(2)} × ${quantity}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: controller.isDarkTheme.value
+                                          ? Colors.white70
+                                          : Colors.grey[600],
+                                    ),
+                                  ),
+                                  Text(
+                                    '₹${totalPrice.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: controller.isDarkTheme.value
+                                          ? primaryColor
+                                          : primaryDarkColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -482,7 +499,9 @@ class OrderDetailsScreen extends StatelessWidget {
     // Calculate total price from order items
     double itemsTotal = 0;
     for (var item in orderData.orderProducts!) {
-      itemsTotal += double.tryParse(item.price ?? '0') ?? 0;
+      final quantity = int.tryParse(item.quantity ?? '1') ?? 1;
+      final productPrice = double.tryParse(item.products?.price ?? '0') ?? 0;
+      itemsTotal += productPrice * quantity;
     }
 
     return Card(
@@ -517,7 +536,8 @@ class OrderDetailsScreen extends StatelessWidget {
             // Show individual items and their prices
             ...orderData.orderProducts!.map((item) {
               final quantity = int.tryParse(item.quantity ?? '1') ?? 1;
-              final pricePerItem = (double.tryParse(item.price ?? '0') ?? 0) / quantity;
+              final productPrice = double.tryParse(item.products?.price ?? '0') ?? 0;
+              final itemTotal = productPrice * quantity;
               
               return Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -525,17 +545,29 @@ class OrderDetailsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        '${item.products?.subcategory ?? 'Item'} × $quantity',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: controller.isDarkTheme.value ? Colors.white70 : Colors.grey[700],
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.products?.subcategory ?? 'Item',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: controller.isDarkTheme.value ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            '₹${productPrice.toStringAsFixed(2)} × ${quantity}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: controller.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Text(
-                      '₹${item.price}',
+                      '₹${itemTotal.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,

@@ -6,9 +6,9 @@ class BmiGraph extends StatelessWidget {
   BmiGraph({Key? key}) : super(key: key);
   final c = Get.put(GetController());
   final c1 = Get.put(GraphController());
+  
   @override
   Widget build(BuildContext context) {
-    c1.getUserBmiData();
     return Column(
       children: [
         Obx(
@@ -19,32 +19,38 @@ class BmiGraph extends StatelessWidget {
             color: whiteColor,
             borderColor: Colors.black26,
             isImage: false,
-            child: SfCartesianChart(
-              title: ChartTitle(text: 'BMI Graph'),
-              plotAreaBorderWidth: 0.7,
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-              ),
-              backgroundColor: c.isDarkTheme.value ? blackColor : whiteColor,
-              zoomPanBehavior: ZoomPanBehavior(
-                enablePinching: true,
-                enableDoubleTapZooming: true,
-                enableMouseWheelZooming: true,
-              ),
-              tooltipBehavior: TooltipBehavior(enable: true),
-              series: getDefaultData(),
-              trackballBehavior: TrackballBehavior(
-                enable: true,
-                lineColor: primaryColor,
-                activationMode: ActivationMode.singleTap,
-                tooltipSettings:
-                    const InteractiveTooltip(format: 'point.x : point.y'),
-              ),
-              legend: Legend(
-                isVisible: true,
-                position: LegendPosition.top,
-              ),
-            ),
+            child: c1.isLoading.value
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: primaryColor,
+                    ),
+                  )
+                : SfCartesianChart(
+                    title: ChartTitle(text: 'BMI Graph'),
+                    plotAreaBorderWidth: 0.7,
+                    primaryXAxis: CategoryAxis(
+                      majorGridLines: const MajorGridLines(width: 0),
+                    ),
+                    backgroundColor: c.isDarkTheme.value ? blackColor : whiteColor,
+                    zoomPanBehavior: ZoomPanBehavior(
+                      enablePinching: true,
+                      enableDoubleTapZooming: true,
+                      enableMouseWheelZooming: true,
+                    ),
+                    tooltipBehavior: TooltipBehavior(enable: true),
+                    series: getDefaultData(),
+                    trackballBehavior: TrackballBehavior(
+                      enable: true,
+                      lineColor: primaryColor,
+                      activationMode: ActivationMode.singleTap,
+                      tooltipSettings:
+                          const InteractiveTooltip(format: 'point.x : point.y'),
+                    ),
+                    legend: Legend(
+                      isVisible: true,
+                      position: LegendPosition.top,
+                    ),
+                  ),
           ),
         ),
       ],

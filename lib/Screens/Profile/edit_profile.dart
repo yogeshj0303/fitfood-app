@@ -25,6 +25,7 @@ class EditProfile extends StatelessWidget {
   final prefController = TextEditingController();
   final goalController = TextEditingController();
   final c = Get.put(GetController());
+  final isFeet = true.obs;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +113,9 @@ class EditProfile extends StatelessWidget {
                           title: 'Height',
                           iconData: Icons.height,
                           isHeight: true,
-                          hintText: c.height.value,
+                          hintText: isFeet.value 
+                              ? '${(double.parse(c.height.value) / 30.48).toStringAsFixed(2)} feet'
+                              : '${c.height.value} cm',
                         ),
                         customTextField(
                           controller: weightController,
@@ -149,12 +152,19 @@ class EditProfile extends StatelessWidget {
           size: size,
           label: 'Save',
           onPressed: () {
+            String heightValue = heightController.text.isEmpty
+                ? c.height.value
+                : heightController.text;
+            
+            // Convert height to cm if in feet
+            if (isFeet.value && heightController.text.isNotEmpty) {
+              heightValue = (double.parse(heightController.text) * 30.48).toStringAsFixed(2);
+            }
+            
             ProfileUtils().editProfile(
               name: c.name.value,
               phone: c.phone.value,
-              height: heightController.text.isEmpty
-                  ? c.height.value
-                  : heightController.text,
+              height: heightValue,
               weight: weightController.text.isEmpty
                   ? c.weight.value
                   : weightController.text,
@@ -238,18 +248,20 @@ class EditProfile extends StatelessWidget {
               suffixIcon: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  asWeight
-                      ? Text(
-                          'kg',
-                          style: Style.normalLightTextStyle,
-                        )
-                      : Container(),
-                  asheight
-                      ? Text(
-                          'feet',
-                          style: Style.normalLightTextStyle,
-                        )
-                      : Container(),
+                  if (asWeight)
+                    Text(
+                      'kg',
+                      style: Style.normalLightTextStyle,
+                    ),
+                  if (asheight) ...[
+                    Obx(() => TextButton(
+                      onPressed: () => isFeet.value = !isFeet.value,
+                      child: Text(
+                        isFeet.value ? 'feet' : 'cm',
+                        style: Style.normalLightTextStyle,
+                      ),
+                    )),
+                  ],
                   const SizedBox(width: 10),
                   const Icon(Icons.edit),
                   const SizedBox(width: 10),

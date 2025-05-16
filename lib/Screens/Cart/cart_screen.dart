@@ -145,13 +145,15 @@ class _CartState extends State<Cart> {
     });
   }
 
-  // Update the payment card methods to use the model directly instead of AsyncSnapshot
   Container buildPaymentCard(CartModel model) {
+    // Initialize controller values from model
     c.cartTotal.value = model.data!.productMrp!.toInt();
-    c.amountPayable.value = int.parse(model.data!.productPrice!);
-    c.couponSaving.value =
-        (model.data!.productMrp!.toInt() - int.parse(model.data!.productPrice!))
-            .toString();
+    if (c.couponSaving.value == '0') {
+      c.amountPayable.value = model.data!.productMrp!.toInt();
+    } else {
+      c.amountPayable.value = int.parse(model.data!.productPrice!);
+    }
+    
     return Container(
       decoration: BoxDecoration(
         color: controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
@@ -218,26 +220,31 @@ class _CartState extends State<Cart> {
                         ? Colors.white70
                         : Colors.black54),
               ),
-              Text(
+              Obx(() => Text(
                 '₹${c.cartTotal.value}.00',
                 style: TextStyle(
                     color: controller.isDarkTheme.value
                         ? Colors.white
                         : Colors.black87),
-              ),
+              )),
             ],
           ),
           Obx(
-            () => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            () => c.couponSaving.value != '0' ? Column(
               children: [
-                Text('Coupon Savings', style: Style.normalLightTextStyle),
-                Text(
-                  '-₹${c.couponSaving.value}',
-                  style: Style.smallColortextStyle,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Coupon Applied', style: Style.normalLightTextStyle),
+                    Text(
+                      '₹${c.couponSaving.value} OFF',
+                      style: Style.smallColortextStyle,
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
               ],
-            ),
+            ) : const SizedBox.shrink(),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -246,11 +253,11 @@ class _CartState extends State<Cart> {
                 'Amount Payable',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              Text(
-                '₹${model.data!.productPrice!}.00',
+              Obx(() => Text(
+                '₹${c.amountPayable.value}.00',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 8),
@@ -277,11 +284,14 @@ class _CartState extends State<Cart> {
   }
 
   Container buildTrainersPaymentCard(TrainerCartModel model) {
+    // Initialize controller values from model
     c.cartTotal.value = model.data!.productMrp!.toInt();
-    c.amountPayable.value = model.data!.productPrice!.toInt();
-    c.couponSaving.value =
-        (model.data!.productMrp!.toInt() - model.data!.productPrice!.toInt())
-            .toString();
+    if (c.couponSaving.value == '0') {
+      c.amountPayable.value = model.data!.productMrp!.toInt();
+    } else {
+      c.amountPayable.value = model.data!.productPrice!.toInt();
+    }
+    
     return Container(
       decoration: BoxDecoration(
         color: controller.isDarkTheme.value ? Colors.grey[850] : Colors.white,
@@ -348,26 +358,31 @@ class _CartState extends State<Cart> {
                         ? Colors.white70
                         : Colors.black54),
               ),
-              Text(
+              Obx(() => Text(
                 '₹${c.cartTotal.value}.00',
                 style: TextStyle(
                     color: controller.isDarkTheme.value
                         ? Colors.white
                         : Colors.black87),
-              ),
+              )),
             ],
           ),
           Obx(
-            () => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            () => c.couponSaving.value != '0' ? Column(
               children: [
-                Text('Coupon Savings', style: Style.normalLightTextStyle),
-                Text(
-                  '-₹${c.couponSaving.value}',
-                  style: Style.smallColortextStyle,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Coupon Applied', style: Style.normalLightTextStyle),
+                    Text(
+                      '₹${c.couponSaving.value} OFF',
+                      style: Style.smallColortextStyle,
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
               ],
-            ),
+            ) : const SizedBox.shrink(),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -376,11 +391,11 @@ class _CartState extends State<Cart> {
                 'Amount Payable',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              Text(
-                '₹${model.data!.productPrice!}.00',
+              Obx(() => Text(
+                '₹${c.amountPayable.value}.00',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              )),
             ],
           ),
           const SizedBox(height: 8),

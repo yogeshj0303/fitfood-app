@@ -94,4 +94,18 @@ class GetController extends GetxController {
     await prefs.setBool('isDarkMode', isDarkTheme.value);
     updateTheme();
   }
+
+  void updateBmiStatus(double bmiValue) {
+    bmi.value = bmiValue;
+    if (bmiValue < 18.5) {
+      isUnderWt.value = true;
+      isNormal.value = false;
+    } else if (bmiValue >= 18.5 && bmiValue <= 25.5) {
+      isUnderWt.value = false;
+      isNormal.value = true;
+    } else {
+      isUnderWt.value = false;
+      isNormal.value = false;
+    }
+  }
 }
