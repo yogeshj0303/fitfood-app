@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:fit_food/Screens/Profile/saved_address.dart';
 import 'package:fit_food/Screens/Profile/scan_qr_result.dart';
 import 'package:fit_food/Screens/Profile/trainer_edit_profile.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 import '../../Constants/export.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 // import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -383,16 +385,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 leading: const Icon(Icons.gavel, size: 30, color: primaryColor),
                 title: const Text('Terms & Condition'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-                onTap: () =>
-                    Get.to(() => Terms(), transition: Transition.rightToLeft),
+                onTap: () => launchUrlString("https://fitfood.stilld.in/terms",
+                      mode: LaunchMode.inAppBrowserView,
+                      webOnlyWindowName: "Terms & Condition"
+                      ),
+                // onTap: () =>
+                //     Get.to(() => Terms(), transition: Transition.rightToLeft),
               ),
               ListTile(
                 leading: const Icon(Icons.health_and_safety,
                     size: 30, color: primaryColor),
                 title: const Text('Privacy Policy'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 15),
-                onTap: () => Get.to(() => PrivacyPolicy(),
-                    transition: Transition.rightToLeft),
+                onTap: () async {
+                  launchUrlString("https://fitfood.stilld.in/privacy-policy",
+                      mode: LaunchMode.inAppBrowserView,
+                      webOnlyWindowName: "Privacy Policy",
+                      );
+                  
+                  // final uri = Uri.parse('https://fitfood.stilld.in/privacy-policy');
+                  // if (await canLaunchUrl(uri)) {
+                  //   await launchUrl(uri, mode: LaunchMode.externalApplication);
+                  // } else {
+                  //   throw 'Could not launch $uri';
+                  // }
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.dark_mode, size: 30, color: primaryColor),

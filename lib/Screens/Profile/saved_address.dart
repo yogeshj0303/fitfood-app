@@ -3,6 +3,7 @@ import 'package:fit_food/Components/cart_controller.dart';
 import 'package:fit_food/Constants/export.dart';
 import 'package:fit_food/Widgets/custom_text_field.dart';
 import 'package:fit_food/Widgets/my_button.dart';
+import 'package:fit_food/Constants/indian_location.dart';
 
 class SavedAddress extends StatefulWidget {
   final bool forOrder;
@@ -18,11 +19,12 @@ class _SavedAddressState extends State<SavedAddress> {
   final c2 = Get.put(CartController());
   final locality = TextEditingController();
   final address = TextEditingController();
-  final city = TextEditingController();
-  final state = TextEditingController();
   final pin = TextEditingController();
   final addKey = GlobalKey<FormState>();
   final _razorpay = Razorpay();
+  RxString selectedState = ''.obs;
+  RxString selectedCity = ''.obs;
+  RxList<String> cities = <String>[].obs;
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
     c.role.value == 'Trainer'
@@ -243,10 +245,12 @@ class _SavedAddressState extends State<SavedAddress> {
 
   addAddressDialog() {
     locality.clear();
-    city.clear();
-    state.clear();
     pin.clear();
     address.clear();
+    selectedState.value = '';
+    selectedCity.value = '';
+    cities.clear();
+    
     return Get.defaultDialog(
       title: 'Add Address',
       titleStyle: TextStyle(
@@ -272,16 +276,110 @@ class _SavedAddressState extends State<SavedAddress> {
                   hintText: 'Landmark',
                   iconData: Icons.landscape,
                 ),
-                CustomTextField(
-                  controller: city,
-                  hintText: 'City',
-                  iconData: Icons.location_city,
-                ),
-                CustomTextField(
-                  controller: state,
-                  hintText: 'State',
-                  iconData: Icons.real_estate_agent,
-                ),
+                Obx(() => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      hint: Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_city, 
+                              color: c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Select State',
+                              style: TextStyle(
+                                color: c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      value: selectedState.value.isEmpty ? null : selectedState.value,
+                      items: IndianLocation.states.map((String state) {
+                        return DropdownMenuItem<String>(
+                          value: state,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 12),
+                            child: Text(
+                              state,
+                              style: TextStyle(
+                                color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          selectedState.value = newValue;
+                          cities.value = IndianLocation.getDistricts(newValue);
+                          selectedCity.value = '';
+                        }
+                      },
+                    ),
+                  ),
+                )),
+                Obx(() => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: c.isDarkTheme.value ? Colors.grey[850] : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      hint: Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: Row(
+                          children: [
+                            Icon(Icons.location_city, 
+                              color: c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Select City',
+                              style: TextStyle(
+                                color: c.isDarkTheme.value ? Colors.white70 : Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      value: selectedCity.value.isEmpty ? null : selectedCity.value,
+                      items: cities.map((String city) {
+                        return DropdownMenuItem<String>(
+                          value: city,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 12),
+                            child: Text(
+                              city,
+                              style: TextStyle(
+                                color: c.isDarkTheme.value ? Colors.white : Colors.black87,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          selectedCity.value = newValue;
+                        }
+                      },
+                    ),
+                  ),
+                )),
                 CustomTextField(
                   controller: pin,
                   hintText: 'Pin code',
@@ -291,21 +389,23 @@ class _SavedAddressState extends State<SavedAddress> {
                 myButton(
                     onPressed: () {
                       final isValid = addKey.currentState!.validate();
-                      if (isValid) {
+                      if (isValid && selectedState.value.isNotEmpty && selectedCity.value.isNotEmpty) {
                         Get.back();
                         c.role.value == 'Trainer'
                             ? c1.addTrainerAddress(
                                 address: address.text,
                                 locality: locality.text,
-                                city: city.text,
-                                state: state.text,
+                                city: selectedCity.value,
+                                state: selectedState.value,
                                 pincode: pin.text)
                             : c1.addAddress(
                                 address: address.text,
                                 locality: locality.text,
-                                city: city.text,
-                                state: state.text,
+                                city: selectedCity.value,
+                                state: selectedState.value,
                                 pincode: pin.text);
+                      } else {
+                        Fluttertoast.showToast(msg: 'Please fill all fields');
                       }
                     },
                     label: 'Add',

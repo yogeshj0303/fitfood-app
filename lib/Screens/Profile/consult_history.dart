@@ -16,12 +16,45 @@ class ConsultHistory extends StatelessWidget {
       ),
       body: FutureBuilder<ConsultedModel>(
         future: ProfileUtils().getConsultedHistory(),
-        builder: (context, snapshot) => snapshot.hasData
-            ? ListView.builder(
-                itemCount: snapshot.data!.data!.length,
-                itemBuilder: (context, index) =>
-                    ConsultCard(snapshot: snapshot, index: index))
-            : loading,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return loading;
+          } else if (snapshot.hasData && snapshot.data!.data!.isNotEmpty) {
+            return ListView.builder(
+              itemCount: snapshot.data!.data!.length,
+              itemBuilder: (context, index) =>
+                  ConsultCard(snapshot: snapshot, index: index),
+            );
+          } else {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Colors.grey,
+                    size: 50,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Data Available',
+                    style: Style.mediumTextStyle.copyWith(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Please check back later.',
+                    style: Style.smallLighttextStyle.copyWith(
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
       ),
     );
   }

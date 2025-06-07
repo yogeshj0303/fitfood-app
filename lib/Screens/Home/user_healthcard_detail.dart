@@ -62,7 +62,15 @@ class UserHealthDetail extends StatelessWidget {
                           _buildDetailText(
                               'BMI', c.bmi.value.toStringAsFixed(2)),
                           const SizedBox(height: 8),
-                          _buildDetailText('Height', '${c.height.value} feet'),
+                          Text(
+                            'Height : ${_convertCmToFeetInches(c.height.value)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: c.isDarkTheme.value
+                                  ? Colors.white70
+                                  : Colors.black54,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           _buildDetailText('Weight', '${c.weight.value} kg'),
                           const SizedBox(height: 8),
@@ -114,6 +122,37 @@ class UserHealthDetail extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _convertCmToFeetInches(String value) {
+    try {
+      // Parse the input string to double
+      double cm = double.parse(value);
+
+      // Validate input
+      if (cm <= 0) return "0 feet 0 inches";
+
+      // Conversion factors
+      const double cmToInches = 0.393701;
+      const int inchesPerFoot = 12;
+
+      // Convert cm to total inches
+      double totalInches = cm * cmToInches;
+
+      // Calculate feet and remaining inches
+      int feet = (totalInches / inchesPerFoot).floor();
+      int inches = (totalInches % inchesPerFoot).round();
+
+      // Handle pluralization
+      String feetText = feet == 1 ? 'foot' : 'feet';
+      String inchesText = inches == 1 ? 'inch' : 'inches';
+
+      // Return formatted string
+      return '$feet $feetText $inches $inchesText';
+    } catch (e) {
+      // Handle parsing errors or invalid input
+      return 'Invalid height';
+    }
   }
 
   Widget _buildDetailText(String label, String value) {

@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:fit_food/Constants/export.dart';
-import 'package:fit_food/Models/cart_model.dart';
+import 'package:fit_food/Models/cart_model.dart' as cart;
 import 'package:fit_food/Models/coupon_model.dart';
 import 'package:fit_food/Models/show_order_model.dart';
 import 'package:http/http.dart' as http;
@@ -18,13 +18,26 @@ class CartController extends GetxController {
   RxBool isCartLoading = false.obs;
   RxBool hasError = false.obs;
   RxString error = ''.obs;
+  RxBool isItemAdded = false.obs;
+  RxList<int> cartItems = <int>[].obs;
 
   Rx<ShowOrderModel?> showOrderModel = Rx<ShowOrderModel?>(null);
-  final cartData = Rx<CartModel?>(null);
+  final cartData = Rx<cart.CartModel?>(null);
   final trainerCartData = Rx<TrainerCartModel?>(null);
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Reset isItemAdded when controller is initialized
+    isItemAdded.value = false;
+  }
 
   Future<void> addToCart(int productId) async {
     isLoading.value = true;
+    // Ensure quantity is at least 1
+    if (qty.value < 1) {
+      qty.value = 1;
+    }
     final url =
         '${apiUrl}addtocart?user_id=${GlobalVariable.id}&subcategorie_id=$productId&quantity=${qty.value}';
     try {
@@ -33,24 +46,34 @@ class CartController extends GetxController {
         final data = jsonDecode(response.body);
         if (data['error'] == false) {
           isLoading.value = false;
-          qty.value = 1; // Reset quantity after adding to cart
+          isItemAdded.value = true;  // Set to true when item is added
+          // Add item to cartItems list if not already present
+          if (!cartItems.contains(productId)) {
+            cartItems.add(productId);
+            cartItems.refresh();
+          }
+          // Refresh cart data to show updated quantity
+          await showCart();
           Fluttertoast.showToast(msg: data['message']);
         } else {
           isLoading.value = false;
+          isItemAdded.value = false;  // Reset if item is already in cart
           Fluttertoast.showToast(msg: 'Product is already in cart');
         }
       } else {
         isLoading.value = false;
+        isItemAdded.value = false;  // Reset on error
         Fluttertoast.showToast(
             msg: '${response.statusCode} ${response.reasonPhrase}');
       }
     } catch (e) {
       isLoading.value = false;
+      isItemAdded.value = false;  // Reset on error
       Fluttertoast.showToast(msg: 'Error: $e');
     }
   }
 
-  Future<CartModel> showCart() async {
+  Future<cart.CartModel> showCart() async {
     try {
       isCartLoading.value = true;
       final url = '${apiUrl}getCart?user_id=${GlobalVariable.id}';
@@ -61,7 +84,7 @@ class CartController extends GetxController {
         print('Debug - Cart API Response: $data');
         
         if (data['error'] == false) {
-          final result = CartModel.fromJson(data);
+          final result = cart.CartModel.fromJson(data);
           cartData.value = result;
 
           // Set the cart total and payable amount
@@ -129,6 +152,13 @@ class CartController extends GetxController {
             // Force UI updates
             cartTotal.refresh();
             amountPayable.refresh();
+
+            // Update cartItems list
+            cartItems.clear();
+            for (var item in updatedCart.data!.cartItems!) {
+              cartItems.add(item.subcategorieid!.toInt());
+            }
+            cartItems.refresh();
           }
           
           isCartLoading.value = false;
@@ -161,6 +191,15 @@ class CartController extends GetxController {
         if (data['error'] == false) {
           // Remove coupon when item is deleted
           await removeCoupon();
+          // Remove item from cartItems list
+          final itemToRemove = cartData.value?.data?.cartItems?.firstWhere(
+            (item) => item.id == cartId,
+            orElse: () => cart.CartItems(),
+          );
+          if (itemToRemove != null && itemToRemove.subcategorieid != null) {
+            cartItems.remove(itemToRemove.subcategorieid?.toInt());
+            cartItems.refresh();  // Force UI update
+          }
           // Refresh cart data
           await showCart();
           Fluttertoast.showToast(msg: 'Item removed from cart');
@@ -363,19 +402,22 @@ class CartController extends GetxController {
         final data = jsonDecode(response.body);
         if (data['error'] == false) {
           isLoading.value = false;
-          qty.value = 1; // Reset quantity after adding to cart
+          isItemAdded.value = true;  // Set to true when item is added
           Fluttertoast.showToast(msg: data['message']);
         } else {
           isLoading.value = false;
+          isItemAdded.value = false;  // Reset if item is already in cart
           Fluttertoast.showToast(msg: 'Product is already in cart');
         }
       } else {
         isLoading.value = false;
+        isItemAdded.value = false;  // Reset on error
         Fluttertoast.showToast(
             msg: '${response.statusCode} ${response.reasonPhrase}');
       }
     } catch (e) {
       isLoading.value = false;
+      isItemAdded.value = false;  // Reset on error
       Fluttertoast.showToast(msg: 'Error: $e');
     }
   }

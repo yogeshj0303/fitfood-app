@@ -28,7 +28,8 @@ class ProfileUtils {
   }
 
   getbmi(double height, double weight) {
-    height = height / 100;
+    // Convert height from feet to meters
+    height = height * 0.3048;
     c.bmi.value = weight / (height * height);
     c.isUnderWt.value = c.bmi.value < 18.5;
     c.isNormal.value = c.bmi.value >= 18.5 && c.bmi.value <= 25.5;

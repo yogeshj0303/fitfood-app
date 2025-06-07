@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final c = Get.put(GetController());
   final homeController = Get.put(HomeController());
 
+ 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -220,6 +221,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget buildHealthCard(Size size) {
+    // Convert height to feet and inches
+    String heightInFeetInches = c.height.value;
+    List<String> heightParts = heightInFeetInches.split('.');
+    int feet = int.parse(heightParts[0]);
+    int inches = ((double.parse('0.' + heightParts[1]) * 12).round());
+
     return Obx(
       () => InkWell(
         onTap: () => Get.to(() => UserHealthDetail()),
@@ -297,8 +304,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text('BMI : ${c.bmi.value.toStringAsFixed(2)}',
                           style: Style.normalWTextStyle),
-                      Text('Height : ${(double.parse(c.height.value) / 30.48).toStringAsFixed(2)} feet',
-                          style: Style.normalWTextStyle),
+                      Text('Height : $feet feet $inches inches', style: Style.normalWTextStyle),
                       Text('Weight : ${c.weight.value} kg',
                           style: Style.normalWTextStyle),
                       Text('Goal : ${c.goal.value}',

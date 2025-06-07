@@ -185,32 +185,34 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (phoneController.text.length == 10 && isAgree) {
-                AuthUtils().sendOtp(phoneController.text);
-              } else {
-                isAgree
-                    ? Fluttertoast.showToast(
-                        msg: 'Please enter 10 digit valid phone number')
-                    : Fluttertoast.showToast(
-                        msg:
-                            'Please accept our Terms of service and Privacy Policy');
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              minimumSize: const Size(double.infinity, 45),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          Container(
+            width: MediaQuery.of(context).size.width - 2 * defaultPadding,
+            child: ElevatedButton(
+              onPressed: () {
+                if (phoneController.text.length == 10 && isAgree) {
+                  AuthUtils().sendOtp(phoneController.text);
+                } else {
+                  isAgree
+                      ? Fluttertoast.showToast(
+                          msg: 'Please enter 10 digit valid phone number')
+                      : Fluttertoast.showToast(
+                          msg:
+                              'Please accept our Terms of service and Privacy Policy');
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: primaryColor,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-            child: Text(
-              'Agree & Continue',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              child: Text(
+                'Agree & Continue',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
           ),

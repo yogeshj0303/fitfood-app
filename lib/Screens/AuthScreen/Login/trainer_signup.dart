@@ -2,6 +2,7 @@ import 'package:fit_food/Constants/export.dart';
 import 'package:fit_food/Screens/AuthScreen/Login/trainer_login.dart';
 import 'package:flutter/gestures.dart';
 import '../../../Widgets/custom_text_field.dart';
+import 'package:fit_food/Constants/indian_location.dart';
 
 class TrainerSignup extends StatefulWidget {
   const TrainerSignup({super.key});
@@ -17,13 +18,15 @@ class _TrainerSignupState extends State<TrainerSignup> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
   final TextEditingController passController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
   final TextEditingController expController = TextEditingController();
   final TextEditingController cnfpassController = TextEditingController();
   final TextEditingController aboutController = TextEditingController();
   final GlobalKey<FormState> signInkey = GlobalKey<FormState>();
 
   String selectedGender = 'Male';
+  RxString selectedState = ''.obs;
+  RxString selectedCity = ''.obs;
+  RxList<String> cities = <String>[].obs;
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +79,110 @@ class _TrainerSignupState extends State<TrainerSignup> {
                             hintText: 'Enter your field of specialization',
                             iconData: Icons.hotel_class,
                           ),
-                          CustomTextField(
-                            controller: cityController,
-                            hintText: 'Enter your city name',
-                            iconData: Icons.location_city,
-                          ),
+                          Obx(() => Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Get.isDarkMode ? Colors.grey[850] : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                hint: Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_city, 
+                                        color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Select State',
+                                        style: TextStyle(
+                                          color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                value: selectedState.value.isEmpty ? null : selectedState.value,
+                                items: IndianLocation.states.map((String state) {
+                                  return DropdownMenuItem<String>(
+                                    value: state,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Text(
+                                        state,
+                                        style: TextStyle(
+                                          color: Get.isDarkMode ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    selectedState.value = newValue;
+                                    cities.value = IndianLocation.getDistricts(newValue);
+                                    selectedCity.value = '';
+                                  }
+                                },
+                              ),
+                            ),
+                          )),
+                          Obx(() => Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            decoration: BoxDecoration(
+                              color: Get.isDarkMode ? Colors.grey[850] : Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                isExpanded: true,
+                                hint: Padding(
+                                  padding: const EdgeInsets.only(left: 12),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.location_city, 
+                                        color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+                                        size: 20,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        'Select City',
+                                        style: TextStyle(
+                                          color: Get.isDarkMode ? Colors.white70 : Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                value: selectedCity.value.isEmpty ? null : selectedCity.value,
+                                items: cities.map((String city) {
+                                  return DropdownMenuItem<String>(
+                                    value: city,
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 12),
+                                      child: Text(
+                                        city,
+                                        style: TextStyle(
+                                          color: Get.isDarkMode ? Colors.white : Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  if (newValue != null) {
+                                    selectedCity.value = newValue;
+                                  }
+                                },
+                              ),
+                            ),
+                          )),
                           CustomTextField(
                             controller: expController,
                             hintText: 'Enter your no. of years of experience',
@@ -174,17 +276,19 @@ class _TrainerSignupState extends State<TrainerSignup> {
     return ElevatedButton(
       onPressed: () {
         final isValid = signInkey.currentState!.validate();
-        if (isValid) {
+        if (isValid && selectedState.value.isNotEmpty && selectedCity.value.isNotEmpty) {
           AuthUtils().trainerRegister(
               name: nameController.text,
               email: emailController.text,
               pass: passController.text,
               gender: selectedGender,
-              city: cityController.text,
+              city: selectedCity.value,
               specialist: specialistController.text,
               exp: expController.text,
               about: aboutController.text,
               mobile: mobileController.text);
+        } else {
+          Fluttertoast.showToast(msg: 'Please fill all fields');
         }
       },
       child: Text(

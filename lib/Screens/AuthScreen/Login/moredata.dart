@@ -15,13 +15,16 @@ class _MoreDataState extends State<MoreData> {
   String dob = '';
   final c = Get.put(GetController());
   bool isLbs = false;
-  bool isFeet = false;
+  bool isFeet = true;
   @override
   Widget build(BuildContext context) {
     String wtValue = weight.toString().split('.').first;
     String wtInLbs = (weight * 2.20462).toString().split('.').first;
     String htValue = height.toString().split('.').first;
-    String htInFeet = (height / 30.48).toString().substring(0, 3);
+    int feet = (height / 30.48).floor();
+    int inches = (((height / 30.48) - feet) * 12).round();
+    String htInFeet = "$feet'$inches\"";
+    String htInDecimalFeet = (height / 30.48).toStringAsFixed(1);
     final size = MediaQuery.of(context).size;
     return Scaffold(
       body: SingleChildScrollView(
@@ -109,7 +112,7 @@ class _MoreDataState extends State<MoreData> {
                     if (dob != '') {
                       Fluttertoast.showToast(msg: 'Data saved');
                       c.weight.value = wtValue;
-                      c.height.value = htValue;
+                      c.height.value = htInDecimalFeet;
                       c.gender.value = isMale ? 'Male' : 'Female';
                       c.dob.value = dob;
                       Get.to(() => DietPreference());
@@ -207,30 +210,6 @@ class _MoreDataState extends State<MoreData> {
                 isLbs
                     ? Text(wtInLbs, style: Style.normalLightTextStyle)
                     : Text(wtValue, style: Style.normalLightTextStyle),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      child: Text('KG',
-                          style: isLbs
-                              ? Style.smallLighttextStyle
-                              : Style.normalColorTextStyle),
-                      onPressed: () => setState(
-                        () => isLbs = false,
-                      ),
-                    ),
-                    TextButton(
-                      child: Text('LBS',
-                          style: isLbs
-                              ? Style.normalColorTextStyle
-                              : Style.smallLighttextStyle),
-                      onPressed: () => setState(
-                        () => isLbs = true,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -272,30 +251,6 @@ class _MoreDataState extends State<MoreData> {
                 isFeet
                     ? Text(htInFeet, style: Style.normalLightTextStyle)
                     : Text(htValue, style: Style.normalLightTextStyle),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      child: Text('CM',
-                          style: isFeet
-                              ? Style.smallLighttextStyle
-                              : Style.normalColorTextStyle),
-                      onPressed: () => setState(
-                        () => isFeet = false,
-                      ),
-                    ),
-                    TextButton(
-                      child: Text('FEET',
-                          style: isFeet
-                              ? Style.normalColorTextStyle
-                              : Style.smallLighttextStyle),
-                      onPressed: () => setState(
-                        () => isFeet = true,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

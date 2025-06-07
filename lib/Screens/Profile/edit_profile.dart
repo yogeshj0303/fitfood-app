@@ -29,6 +29,41 @@ class EditProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Convert height to feet and inches
+    String heightInFeetInches = c.height.value;
+    List<String> heightParts = heightInFeetInches.split('.');
+    int feet = int.parse(heightParts[0]);
+    int inches = ((double.parse('0.' + heightParts[1]) * 12).round());
+
+    // Add a listener to the heightController to convert input to feet and inches
+    heightController.addListener(() {
+      String input = heightController.text;
+      // Check if input is already formatted as 'X feet Y inches'
+      if (RegExp(r'^\d+ feet \d+ inches$').hasMatch(input)) {
+        return; // Skip parsing if already formatted
+      }
+      if (input.contains('.') && !input.endsWith('.')) {
+        List<String> parts = input.split('.');
+        if (parts.length == 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
+          int feet = int.parse(parts[0]);
+          // Directly use the part after the decimal as inches if it's a valid number
+          int inches = int.parse(parts[1]);
+          // Ensure inches do not exceed 11
+          if (inches >= 12) {
+            feet += inches ~/ 12;
+            inches = inches % 12;
+          }
+          // Update the text field with the correct format
+          heightController.value = TextEditingValue(
+            text: '$feet feet $inches inches',
+            selection: TextSelection.fromPosition(
+              TextPosition(offset: '$feet feet $inches inches'.length),
+            ),
+          );
+        }
+      }
+    });
+
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -114,7 +149,7 @@ class EditProfile extends StatelessWidget {
                           iconData: Icons.height,
                           isHeight: true,
                           hintText: isFeet.value 
-                              ? '${(double.parse(c.height.value) / 30.48).toStringAsFixed(2)} feet'
+                              ? '$feet feet $inches inches'
                               : '${c.height.value} cm',
                         ),
                         customTextField(
@@ -156,15 +191,25 @@ class EditProfile extends StatelessWidget {
                 ? c.height.value
                 : heightController.text;
             
-            // Convert height to cm if in feet
-            if (isFeet.value && heightController.text.isNotEmpty) {
-              heightValue = (double.parse(heightController.text) * 30.48).toStringAsFixed(2);
+            // Convert formatted height to decimal format
+            if (heightValue.contains('feet')) {
+              List<String> parts = heightValue.split(' ');
+              int feet = int.parse(parts[0]);
+              int inches = int.parse(parts[2]);
+              // Convert to decimal format
+              heightValue = (feet + inches / 12).toStringAsFixed(1);
             }
+            
+            // Update the heightController with the formatted height
+            double totalInches = double.parse(heightValue) * 12;
+            int feet = totalInches ~/ 12;
+            int inches = (totalInches % 12).round();
+            heightController.text = '$feet feet $inches inches';
             
             ProfileUtils().editProfile(
               name: c.name.value,
               phone: c.phone.value,
-              height: heightValue,
+              height: heightValue, // Pass height as a decimal string
               weight: weightController.text.isEmpty
                   ? c.weight.value
                   : weightController.text,
@@ -253,15 +298,6 @@ class EditProfile extends StatelessWidget {
                       'kg',
                       style: Style.normalLightTextStyle,
                     ),
-                  if (asheight) ...[
-                    Obx(() => TextButton(
-                      onPressed: () => isFeet.value = !isFeet.value,
-                      child: Text(
-                        isFeet.value ? 'feet' : 'cm',
-                        style: Style.normalLightTextStyle,
-                      ),
-                    )),
-                  ],
                   const SizedBox(width: 10),
                   const Icon(Icons.edit),
                   const SizedBox(width: 10),

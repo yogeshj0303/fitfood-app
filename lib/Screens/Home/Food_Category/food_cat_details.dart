@@ -3,6 +3,7 @@ import 'package:fit_food/Components/cart_controller.dart';
 import 'package:fit_food/Screens/Cart/cart_screen.dart';
 import '../../../Constants/export.dart' hide Data; // Hide Data from export.dart
 import '../../../Models/foodsubcat_model.dart'; // This will provide the Data class we need
+import 'package:fluttertoast/fluttertoast.dart';
 
 class FoodCatDetails extends StatefulWidget {
   final AsyncSnapshot<FoodSubCategoryModel> snapshot;
@@ -26,6 +27,8 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
   @override
   void initState() {
     super.initState();
+    // Initialize quantity to 1
+    c.qty.value = 1;
     // Fetch similar items using the same category ID
     final categoryId = widget.snapshot.data!.data![widget.ind].categoryId;
     similarItems = HomeUtils().getFoodSubCategries(int.parse(categoryId!));
@@ -95,37 +98,34 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
                                         ),
                                       ),
                                       Obx(() {
-                                        if (c.qty.value > 0) {
-                                          return Positioned(
-                                            right: 0,
-                                            top: 0,
-                                            child: Container(
-                                              padding: const EdgeInsets.all(4),
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              constraints: const BoxConstraints(
-                                                minWidth: 16,
-                                                minHeight: 16,
-                                              ),
-                                              child: Text(
-                                                c.qty.value.toString(),
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                textAlign: TextAlign.center,
+                                        return Positioned(
+                                          right: 0,
+                                          top: 0,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.red,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
                                               ),
                                             ),
-                                          );
-                                        }
-                                        return const SizedBox.shrink();
+                                            constraints: const BoxConstraints(
+                                              minWidth: 16,
+                                              minHeight: 16,
+                                            ),
+                                            child: Text(
+                                              c.cartItems.length.toString(),
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        );
                                       }),
                                     ],
                                   ),
@@ -337,11 +337,15 @@ class _FoodCatDetailsState extends State<FoodCatDetails> {
                 // Add to cart button
                 ElevatedButton(
                   onPressed: () {
-                    c1.role.value == 'Trainer'
-                        ? c.addToTrainerCart(
-                            widget.snapshot.data!.data![widget.ind].id!.toInt())
-                        : c.addToCart(
-                            widget.snapshot.data!.data![widget.ind].id!.toInt());
+                    if (c.qty.value > 0) {
+                      c1.role.value == 'Trainer'
+                          ? c.addToTrainerCart(
+                              widget.snapshot.data!.data![widget.ind].id!.toInt())
+                          : c.addToCart(
+                              widget.snapshot.data!.data![widget.ind].id!.toInt());
+                    } else {
+                      Fluttertoast.showToast(msg: 'Please select a valid quantity');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,

@@ -32,7 +32,7 @@ class UserDetails extends StatelessWidget {
                     Text('BMI : ${(double.tryParse(item.bmi?.toString() ?? '0.0') ?? 0.0).toStringAsFixed(2)}',
                         style: Style.normalLightTextStyle),
                     const SizedBox(height: 8),
-                    Text('Height : ${item.height} feet',
+                    Text('Height : ${(double.tryParse(item.height?.toString() ?? '0.0') ?? 0.0 / 30.48).toStringAsFixed(2)} feet',
                         style: Style.normalLightTextStyle),
                     const SizedBox(height: 8),
                     Text('Weight : ${item.weight} kg',
